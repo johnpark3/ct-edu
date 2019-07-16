@@ -6,7 +6,7 @@ library(tidyverse)
 require(utils, quietly=TRUE)
 
 packages <- c("devtools", "here", "rio", "stringr", 
-              "purrr", "CT-Data-Haven/cwi", "camille-s/camiller") %>% 
+              "purrr") %>% 
   as.data.frame() %>% tbl_df() %>% 
   rename("package name" = ".") %>% 
   separate("package name", into = c("github", "package"), sep = "/", fill = "left")
@@ -28,5 +28,8 @@ if (length(a) > 0) {
 if (length(packages$package) > 0) {
   sapply(packages$package, require, character.only=TRUE, quietly=TRUE)
 } 
+
+devtools::install_github("CT-Data-Haven/cwi")
+devtools::install_github("camille-s/camiller")
 
 cat("All packages installed and loaded!")
