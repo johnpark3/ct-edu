@@ -7,7 +7,6 @@ regional_dists <- here::here("edsight/_utils/regional_school_dists.tsv") %>%
   mutate(district = str_pad(district, width = 2, side = "left", pad = "0") %>%
            paste("Regional School District", .)) %>%
   rename(town = towns)
-
 region_df <- cwi::regions %>%
   imap_dfr(~tibble(region = .y, town = .x)) %>%
   filter(region %in% main_regions)
@@ -16,6 +15,7 @@ school_dists <- region_df %>%
   left_join(regional_dists, by = "town") %>%
   mutate(district = coalesce(district, town)) %>%
   distinct(region, district)
+
 
 region_sum <- function(.data, ..., na.rm = F, drop_flagged = NULL) {
   cols <- quos(...)
