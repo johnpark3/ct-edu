@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1563302677981.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "DE51FC66",
+    "lastKnownWriteTime" : 1563302816,
+    "last_content_update" : 1563302816344,
+    "path" : "~/Documents/GitHub/ct-edu/edsight/notebooks/clean_edsight.Rmd",
+    "project_path" : "edsight/notebooks/clean_edsight.Rmd",
+    "properties" : {
+        "cursorPosition" : "10,0",
+        "scrollLine" : "0",
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}

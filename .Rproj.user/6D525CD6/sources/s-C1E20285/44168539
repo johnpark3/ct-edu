@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1563302767844.000,
+    "dirty" : true,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "44168539",
+    "lastKnownWriteTime" : 1563302929,
+    "last_content_update" : 1563303554032,
+    "path" : "~/Documents/GitHub/ct-edu/edsight/_utils/edsight_functions.R",
+    "project_path" : "edsight/_utils/edsight_functions.R",
+    "properties" : {
+        "cursorPosition" : "18,0",
+        "scrollLine" : "0"
+    },
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

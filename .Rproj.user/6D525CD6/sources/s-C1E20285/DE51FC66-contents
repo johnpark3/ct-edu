@@ -1,0 +1,12 @@
+---
+title: "clean_edsight"
+author: "John Park"
+date: "7/16/2019"
+output: html_document
+---
+
+```{r}
+source("../_utils/geographies.R")
+source("../_utils/edsight_functions.R")
+```
+
