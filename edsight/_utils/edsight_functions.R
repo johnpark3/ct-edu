@@ -1,0 +1,33 @@
+main_regions <- c(main_regions, "6 wealthiest Fairfield County", "Greater Waterbury")
+
+# regional_dists <- read_delim("../../../_utils/regional_school_dists.tsv", delim = ";") %>%
+regional_dists <- here::here("_utils/regional_school_dists.tsv") %>%
+  read_delim(delim = ";") %>%
+  separate_rows(towns, sep = ",") %>%
+  mutate(district = str_pad(district, width = 2, side = "left", pad = "0") %>%
+           paste("Regional School District", .)) %>%
+  rename(town = towns)
+region_df <- cwi::regions %>%
+  imap_dfr(~tibble(region = .y, town = .x)) %>%
+  filter(region %in% main_regions)
+
+school_dists <- region_df %>%
+  left_join(regional_dists, by = "town") %>%
+  mutate(district = coalesce(district, town)) %>%
+  distinct(region, district)
+
+
+region_sum <- function(.data, ..., na.rm = F, drop_flagged = NULL) {
+  cols <- quos(...)
+  out <- .data
+  if (!missing(drop_flagged)) {
+    flag_col <- enquo(drop_flagged)
+    out <- out %>% 
+      filter_at(vars(!!flag_col), magrittr::not)
+  }
+  out %>%
+    inner_join(school_dists, by = "district") %>%
+    group_by(region, key, !!!cols) %>%
+    summarise_if(is.numeric, sum, na.rm = na.rm) %>%
+    ungroup()
+}
