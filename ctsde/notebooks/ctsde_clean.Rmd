@@ -1,0 +1,51 @@
+---
+title: "ctsde_clean"
+author: "John Park"
+date: "7/15/2019"
+output: html_document
+---
+```{r}
+library(rio)
+library(tidyverse)
+library(camiller)
+library(cwi)
+library(here)
+
+setwd(here())
+
+suspension <- readRDS(here("datasets/suspension_rate_by_race.rds")) %>% 
+  as_tibble() %>% 
+  filter(District == "New Haven School District") %>% 
+  select("Measure Type", District, Value, "Race/Ethnicity", FIPS, Year, Variable) %>% 
+  select(District, "Race/Ethnicity", Value)
+suspension$`Race/Ethnicity` <-
+  gsub("Hispanic or Latino of any race", "Hispanic/Latino of any race", suspension$`Race/Ethnicity`)
+
+enroll <- readRDS(here("datasets/student_enrollment_by_race_ethnicity.rds")) %>% 
+  as_tibble() %>% 
+  filter(District == "New Haven School District") %>% 
+  select("Measure Type", District, Value, "Race/Ethnicity", FIPS, Year, Variable) %>% 
+  select(Value, "Race/Ethnicity")
+
+absent <- readRDS(here("datasets/chronic_absenteeism_by_race_ethnicity.rds")) %>% 
+  as_tibble() %>% 
+  filter(District == "New Haven School District") %>% 
+  select("Measure Type", District, Value, "Race/Ethnicity", FIPS, Year, Variable) %>% 
+  select(Value, "Race/Ethnicity")
+```
+
+```{r}
+dat <- suspension %>% 
+  full_join(enroll, by = "Race/Ethnicity") %>% 
+  full_join(absent, by = "Race/Ethnicity") %>% 
+  rename(suspension.percent = Value.x,
+         enrollment.num = Value.y,
+         absenteeism.percent = Value) %>% 
+  select(District, "Race/Ethnicity", enrollment.num, absenteeism.percent, suspension.percent)
+```
+
+
+```{r}
+export(dat, here("/datasets/enrollment_absenteeism_suspension_by_race.csv"))
+```
+
