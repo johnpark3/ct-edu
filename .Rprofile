@@ -31,5 +31,7 @@ if (length(packages$package) > 0) {
 
 devtools::install_github("CT-Data-Haven/cwi")
 devtools::install_github("camille-s/camiller")
+library(cwi)
+library(camiller)
 
 cat("All packages installed and loaded!")
