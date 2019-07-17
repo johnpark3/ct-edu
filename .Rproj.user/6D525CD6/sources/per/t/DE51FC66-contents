@@ -6,7 +6,6 @@ output: html_document
 ---
 
 ```{r}
-source("../_utils/geographies.R")
 source("../_utils/edsight_functions.R")
 ```
 

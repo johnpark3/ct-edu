@@ -1,6 +1,7 @@
+main_regions <- c("Connecticut", "Fairfield County", "Lower Naugatuck Valley", "Greater Hartford", "Hartford Inner Ring", "Hartford Outer Ring", "Greater New Haven", "New Haven Inner Ring", "New Haven Outer Ring")
+
 main_regions <- c(main_regions, "6 wealthiest Fairfield County", "Greater Waterbury")
 
-# regional_dists <- read_delim("../../../_utils/regional_school_dists.tsv", delim = ";") %>%
 regional_dists <- here::here("edsight/_utils/regional_school_dists.tsv") %>%
   read_delim(delim = ";") %>%
   separate_rows(towns, sep = ",") %>%
@@ -8,13 +9,21 @@ regional_dists <- here::here("edsight/_utils/regional_school_dists.tsv") %>%
            paste("Regional School District", .)) %>%
   rename(town = towns)
 region_df <- cwi::regions %>%
-  imap_dfr(~tibble(region = .y, town = .x)) %>%
-  filter(region %in% main_regions)
+  enframe(name = "region", value = "town") %>%
+  unnest()
+region_df <- region_df %>% 
+  dplyr::filter(region %in% main_regions)
+
+region_tmp <- regional_dists %>%
+  inner_join(region_df, by = "town") %>%
+  select(region, district)
 
 school_dists <- region_df %>%
-  left_join(regional_dists, by = "town") %>%
-  mutate(district = coalesce(district, town)) %>%
-  distinct(region, district)
+  rename(district = town) %>%
+  bind_rows(region_tmp) %>%
+  distinct() %>%
+  arrange(region, district)
+rm(region_tmp)
 
 
 region_sum <- function(.data, ..., na.rm = F, drop_flagged = NULL) {
