@@ -6,7 +6,7 @@ library(tidyverse)
 require(utils, quietly=TRUE)
 
 packages <- c("devtools", "here", "rio", "stringr", 
-              "purrr") %>% 
+              "purrr", "zoo") %>% 
   as.data.frame() %>% tbl_df() %>% 
   rename("package name" = ".") %>% 
   separate("package name", into = c("github", "package"), sep = "/", fill = "left")
