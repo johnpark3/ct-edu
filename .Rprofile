@@ -34,4 +34,7 @@ devtools::install_github("camille-s/camiller")
 library(cwi)
 library(camiller)
 
+detach("package:dplyr")
+library(dplyr)
+
 cat("All packages installed and loaded!")
