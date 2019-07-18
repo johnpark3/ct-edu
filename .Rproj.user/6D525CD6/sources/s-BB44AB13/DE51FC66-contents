@@ -14,6 +14,7 @@ nh_dists$district <- nh_dists$district %>%
   paste("School District")
 ```
 
+Performance index
 ```{r}
 nh_perf <- read_csv(here("edsight/raw_data", "performanceindex.csv"), skip = 8) %>% 
   rename('ELA_1516' = 'ELAPerformanceIndex') %>% 
@@ -34,7 +35,35 @@ nh_perf$'District Code' <- nh_perf$'District Code' %>% gsub(pattern = '"', rep =
 nh_perf$'School Code' <- nh_perf$'School Code' %>% gsub(pattern = '=', rep = "")
 nh_perf$'School Code' <- nh_perf$'School Code' %>% gsub(pattern = '"', rep = "")
 
-unique(nh_perf$district)
-dim(nh_perf)
+# checks
+# unique(nh_perf$district)
+# dim(nh_perf)
 ```
 
+Staffing race/ethnicity
+```{r}
+nh_staffrace <- read_csv(here("edsight/raw_data", "staffing_race.csv"), skip = 3)
+nh_staffrace$District <- nh_staffrace$District %>% tidyr::fill()
+
+  rename('ELA_1516' = 'ELAPerformanceIndex') %>% 
+  rename('Math_1516' = 'MathPerformanceIndex') %>% 
+  rename('Sci_1516' = 'SciencePerformanceIndex') %>% 
+  rename('ELA_1617' = 'ELAPerformanceIndex_1') %>% 
+  rename('Math_1617' = 'MathPerformanceIndex_1') %>% 
+  rename('Sci_1617' = 'SciencePerformanceIndex_1') %>% 
+  rename('ELA_1718' = 'ELAPerformanceIndex_2') %>% 
+  rename('Math_1718' = 'MathPerformanceIndex_2') %>% 
+  rename('Sci_1718' = 'SciencePerformanceIndex_2') %>% 
+  dplyr::filter(.$'District Name' %in% nh_dists$'district') %>% 
+  rename('district' = "District Name") %>% 
+  right_join(nh_dists, by = 'district')
+
+nh_staffrace$'District Code' <- nh_perf$'District Code' %>% gsub(pattern = '=', rep = "")
+nh_staffrace$'District Code' <- nh_perf$'District Code' %>% gsub(pattern = '"', rep = "")
+nh_staffrace$'School Code' <- nh_perf$'School Code' %>% gsub(pattern = '=', rep = "")
+nh_staffrace$'School Code' <- nh_perf$'School Code' %>% gsub(pattern = '"', rep = "")
+
+# checks
+# unique(nh_staffrace$district)
+# dim(nh_staffrace)
+```
