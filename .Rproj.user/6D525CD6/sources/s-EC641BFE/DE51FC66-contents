@@ -65,3 +65,59 @@ nh_staffrace <- read_csv(here("edsight/raw_data", "staffing_race.csv"), skip = 3
 # unique(nh_staffrace$district)
 # dim(nh_staffrace)
 ```
+
+Chronic Absenteeism
+```{r}
+nh_absent <- read_csv(here("edsight/raw_data", "chronicAbsenteeism.csv"), skip = 4) %>% 
+  dplyr::filter(.$'District' %in% nh_dists$'district') %>% 
+  rename('district' = "District") %>% 
+  right_join(nh_dists, by = 'district') %>% 
+  sapply(gsub, pattern = "=", rep = "") %>% 
+  as_tibble %>% 
+  sapply(gsub, pattern = '"', rep = "") %>% 
+  as_tibble
+
+# checks
+# unique(nh_staffrace$district)
+# dim(nh_staffrace)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
