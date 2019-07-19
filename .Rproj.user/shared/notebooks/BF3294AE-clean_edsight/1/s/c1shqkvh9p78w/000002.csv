@@ -1,0 +1,24 @@
+"0","nh_absent <- read_csv(here(""edsight/raw_data"", ""chronicAbsenteeism.csv""), skip = 4) %>% "
+"0","  dplyr::filter(.$'District' %in% nh_dists$'district') %>% "
+"0","  rename('district' = ""District"") %>% "
+"0","  right_join(nh_dists, by = 'district') %>% "
+"0","  sapply(gsub, pattern = ""="", rep = """") %>% "
+"0","  as_tibble %>% "
+"0","  sapply(gsub, pattern = '""', rep = """") %>% "
+"0","  as_tibble"
+"2","Parsed with column specification:
+cols(
+  District = [31mcol_character()[39m,
+  `District Code` = [31mcol_character()[39m,
+  School = [31mcol_character()[39m,
+  `School Code` = [31mcol_character()[39m,
+  `Race/Ethnicity` = [31mcol_character()[39m,
+  `2013-14` = [31mcol_character()[39m,
+  `2014-15` = [31mcol_character()[39m,
+  `2015-16` = [31mcol_character()[39m,
+  `2016-17` = [31mcol_character()[39m,
+  `2017-18` = [31mcol_character()[39m
+)
+"
+"2","Error in .$District %in% nh_dists$district : object 'nh_dists' not found
+"

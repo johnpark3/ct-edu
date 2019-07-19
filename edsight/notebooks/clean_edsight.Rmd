@@ -34,9 +34,7 @@ nh_perf <- read_csv(here("edsight/raw_data", "performanceindex.csv"), skip = 8) 
   sapply(gsub, pattern = '"', rep = "") %>% 
   as_tibble
 
-# checks
-# unique(nh_perf$district)
-# dim(nh_perf)
+write_rds(nh_perf, here("outputs", "perf_index.rds"))
 ```
 
 Staffing race/ethnicity
@@ -61,9 +59,7 @@ nh_staffrace <- read_csv(here("edsight/raw_data", "staffing_race.csv"), skip = 3
   sapply(gsub, pattern = '"', rep = "") %>% 
   as_tibble
 
-# checks
-# unique(nh_staffrace$district)
-# dim(nh_staffrace)
+write_rds(nh_staffrace, here("outputs", "staff_race.rds"))
 ```
 
 Chronic Absenteeism
@@ -77,9 +73,7 @@ nh_absent <- read_csv(here("edsight/raw_data", "chronicAbsenteeism.csv"), skip =
   sapply(gsub, pattern = '"', rep = "") %>% 
   as_tibble
 
-# checks
-# unique(nh_staffrace$district)
-# dim(nh_staffrace)
+write_rds(nh_absent, here("outputs", "absenteeism.rds"))
 ```
 
 
