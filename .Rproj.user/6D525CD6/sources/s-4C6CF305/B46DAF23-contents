@@ -1,0 +1,337 @@
+---
+title: "shenoi"
+author: "John Park"
+date: "3/5/2019"
+output:
+  pdf_document: default
+  html_document: default
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Load the packages referenced in natsios_analysis.pdf
+
+```{r, results="hide"}
+library(tm)
+library(tidytext)
+library(tidyr)
+library(dplyr)
+library(topicmodels)
+library(ggplot2)
+library(magrittr)
+library(stringr)
+```
+
+## Reading the text
+
+I downloaded each paper as a PDF file. Then, I used http://pdftotext.com to convert each paper from a PDF format to a .txt format.
+
+```{r}
+setwd("~/Documents/AFST 378/shenoi/shenoi texts")
+```
+
+# 2010: Transmission of tb and the critical importance of airborne infection control
+
+```{r}
+# Read in the papers by lines.
+text_2010 <- (f1 <- file("~/Documents/AFST 378/shenoi/shenoi texts/shenoi_2010.txt", open="r")) %>% readLines()
+close(f1)
+# cleaning
+text_2010 <- text_2010 %>% str_remove_all("[[:digit:]]+")
+# Convert into a "tidy" dataset.
+tidy_2010 <- tibble(text_2010) %>% 
+  unnest_tokens(word, text_2010) %>% 
+  mutate(paper = "2010")
+# change "tuberculosis" to "tb"
+tidy_2010 <- mutate_if(tidy_2010, is.character, str_replace_all, pattern = "tuberculosis", replacement = "tb")
+# remove stopwords 
+tidy_2010 <- tidy_2010 %>% anti_join(by="word", stop_words)
+# further cleaning
+del_words <- data_frame(
+  word = c("pubmed", "et", "al")
+)
+tidy_2010 <- tidy_2010 %>% anti_join(by="word", del_words)
+```
+
+# 2012: Survival from XDR-TB is associated with modifiable clinical characteristics in rural South Africa.
+
+```{r}
+# Read in the papers by lines.
+text_2012 <- (f2 <- file("~/Documents/AFST 378/shenoi/shenoi texts/shenoi_2012.txt", open="r")) %>% readLines()
+close(f2)
+# cleaning
+text_2012 <- text_2012 %>% str_remove_all("[[:digit:]]+")
+# Convert into a "tidy" dataset.
+tidy_2012 <- tibble(text_2012) %>% unnest_tokens(word, text_2012) %>% mutate(paper = "2012")
+# Cleaning the text
+# change "tuberculosis" to "tb"
+tidy_2012 <- mutate_if(tidy_2012, is.character, str_replace_all, pattern = "tuberculosis", replacement = "tb")
+# remove stopwords 
+tidy_2012 <- tidy_2012 %>% anti_join(by="word", stop_words)
+# further cleaning
+del_words <- data_frame(
+  word = c("pubmed", "et", "al")
+)
+tidy_2012 <- tidy_2012 %>% anti_join(by="word", del_words)
+```
+
+# 2014: Active case finding for tuberculosis among people who inject drugs
+
+```{r}
+# Read in the papers by lines.
+text_2014 <- (f <- file("~/Documents/AFST 378/shenoi/shenoi texts/shenoi_2014.txt", open="r")) %>% readLines()
+close(f)
+# cleaning
+text_2014 <- text_2014 %>% str_remove_all("[[:digit:]]+")
+# Convert into a "tidy" dataset.
+tidy_2014 <- tibble(text_2014) %>% unnest_tokens(word, text_2014) %>% mutate(paper = "2014")
+# Cleaning the text
+# change "tuberculosis" to "tb"
+tidy_2014 <- mutate_if(tidy_2014, is.character, str_replace_all, pattern = "tuberculosis", replacement = "tb")
+# remove stopwords 
+tidy_2014 <- tidy_2014 %>% anti_join(by="word", stop_words)
+# further cleaning
+del_words <- data_frame(
+  word = c("pubmed", "et", "al")
+)
+tidy_2014 <- tidy_2014 %>% anti_join(by="word", del_words)
+```
+
+# 2015: Successful Tuberculosis Treatment Outcomes among HIV/TB Coinfected Patients
+
+```{r}
+# Read in the papers by lines.
+text_2015 <- (f <- file("~/Documents/AFST 378/shenoi/shenoi texts/shenoi_2015.txt", open="r")) %>% readLines()
+close(f)
+# cleaning
+text_2015 <- text_2015 %>% str_remove_all("[[:digit:]]+")
+# Convert into a "tidy" dataset.
+tidy_2015 <- tibble(text_2015) %>% unnest_tokens(word, text_2015) %>% mutate(paper = "2015")
+# Cleaning the text
+# change "tuberculosis" to "tb"
+tidy_2015 <- mutate_if(tidy_2015, is.character, str_replace_all, pattern = "tuberculosis", replacement = "tb")
+# remove stopwords 
+tidy_2015 <- tidy_2015 %>% anti_join(by="word", stop_words)
+# further cleaning
+del_words <- data_frame(
+  word = c("pubmed", "pmid", "doi", "et", "al")
+)
+tidy_2015 <- tidy_2015 %>% anti_join(by="word", del_words)
+```
+
+# 2016: Cost-Effectiveness of Community-Based TB/HIV Screening and Linkage to Care 
+
+```{r}
+text_2016 <- (f <- file("~/Documents/AFST 378/shenoi/shenoi texts/shenoi_2016.txt", open="r")) %>% readLines()
+close(f)
+text_2016 <- text_2016 %>% str_remove_all("[[:digit:]]+")
+tidy_2016 <- tibble(text_2016) %>% unnest_tokens(word, text_2016) %>% mutate(paper = "2016")
+tidy_2016 <- mutate_if(tidy_2016, is.character, str_replace_all, pattern = "tuberculosis", replacement = "tb")
+tidy_2016 <- tidy_2016 %>% anti_join(by="word", stop_words)
+del_words <- data_frame(
+  word = c("pubmed", "pmid", "doi", "et", "al")
+)
+tidy_2016 <- tidy_2016 %>% anti_join(by="word", del_words)
+```
+
+# 2017: Integrated Tuberculosis/Human Immunodeficiency Virus Community-Based Case Finding
+
+```{r}
+text_2017 <- (f <- file("~/Documents/AFST 378/shenoi/shenoi texts/shenoi_2017.txt", open="r")) %>% readLines()
+close(f)
+text_2017 <- text_2017 %>% str_remove_all("[[:digit:]]+")
+tidy_2017 <- tibble(text_2017) %>% unnest_tokens(word, text_2017) %>% mutate(paper = "2017")
+tidy_2017 <- mutate_if(tidy_2017, is.character, str_replace_all, pattern = "tuberculosis", replacement = "tb")
+tidy_2017 <- tidy_2017 %>% anti_join(by="word", stop_words)
+del_words <- data_frame(
+  word = c("pubmed", "pmid", "doi", "et", "al")
+)
+tidy_2017 <- tidy_2017 %>% anti_join(by="word", del_words)
+```
+
+# 2018: Synergism between diabetes and human immunodeficiency virus
+
+```{r}
+text_2018 <- (f <- file("~/Documents/AFST 378/shenoi/shenoi texts/shenoi_2018.txt", open="r")) %>% readLines()
+close(f)
+text_2018 <- text_2018 %>% str_remove_all("[[:digit:]]+")
+tidy_2018 <- tibble(text_2018) %>% unnest_tokens(word, text_2018) %>% mutate(paper = "2018")
+tidy_2018 <- mutate_if(tidy_2018, is.character, str_replace_all, pattern = "tuberculosis", replacement = "tb")
+tidy_2018 <- mutate_if(tidy_2018, is.character, str_replace_all, pattern = "dm", replacement = "diabetes")
+
+tidy_2018 <- tidy_2018 %>% anti_join(by="word", stop_words)
+del_words <- data_frame(
+  word = c("pubmed", "pmid", "doi", "et", "al")
+)
+tidy_2018 <- tidy_2018 %>% anti_join(by="word", del_words)
+```
+
+Word frequencies
+```{r}
+tidy_2018 %>% count(word, sort = TRUE)
+```
+
+## Frequencies across all papers
+
+Join papers
+```{r}
+tidy_all <- full_join(tidy_2010, tidy_2012) %>% full_join(tidy_2014) %>% full_join(tidy_2015) %>% full_join(tidy_2016) %>% full_join(tidy_2017) %>% full_join(tidy_2018)
+```
+
+Calculate word totals
+```{r}
+tidy_all <- tidy_all %>% count(paper, word, sort=TRUE)
+total_words <- tidy_all %>% 
+  group_by(paper) %>%
+  summarize(total = sum(n))
+```
+
+Plot word frequencies by paper
+```{r}
+par(mfrow=c(1,1))
+tidy_all %>%
+  arrange(n) %>%
+  group_by(paper) %>% 
+  top_n(10) %>% 
+  ungroup %>%
+  ggplot(aes(reorder(word, n), n, fill = paper)) +
+  geom_col(show.legend = FALSE) +
+  labs(x = NULL, y = "n") +
+  facet_wrap(~paper, ncol = 2, scales = "free") +
+  coord_flip()
+```
+
+## tf-idf
+a numerical statistic that is intended to reflect how important a word is to a document in a corpus (used as a weighting factor). a count is formed of the number of occurrences of each word and is compared to an inverse document frequency count (measures the number of occurrences in whole corpus)
+
+```{r}
+tidy_all <- tidy_all %>% bind_tf_idf(word, paper, n)
+```
+
+This graph uses tf-idf to display the top unique words in each paper.
+```{r}
+par(mfrow=c(1,1))
+tidy_all %>%
+  arrange(desc(tf_idf)) %>%
+  mutate(word = factor(word, levels = rev(unique(word)))) %>% 
+  group_by(paper) %>% 
+  top_n(10) %>% 
+  ungroup %>%
+  ggplot(aes(word, tf_idf, fill = paper)) +
+  geom_col(show.legend = FALSE) +
+  labs(x = NULL, y = "tf-idf") +
+  facet_wrap(~paper, ncol = 2, scales = "free") +
+  coord_flip()
+```
+
+## Sentiment Analysis
+
+Referred to Chapter 2 of 'Text Mining with R' by Julia Silge and David Robinson
+
+
+Track fear using NRC
+```{r}
+nrc_counts_2010 <- tidy_2010 %>% 
+  inner_join(get_sentiments("nrc")) %>% 
+  count(word, sentiment, sort=TRUE) %>% 
+  filter(sentiment == "fear") %>% 
+  ungroup()
+sum_2010 <- sum(nrc_counts_2010$n)
+adj_2010 <- (sum_2010 / (total_words[1,]$total))
+
+nrc_counts_2012 <- tidy_2012 %>% 
+  inner_join(get_sentiments("nrc")) %>% 
+  count(word, sentiment, sort=TRUE) %>% 
+  filter(sentiment == "fear") %>% 
+  ungroup()
+sum_2012 <- sum(nrc_counts_2012$n)
+adj_2012 <- (sum_2012 / (total_words[2,]$total))
+
+nrc_counts_2014 <- tidy_2014 %>% 
+  inner_join(get_sentiments("nrc")) %>% 
+  count(word, sentiment, sort=TRUE) %>% 
+  filter(sentiment == "fear") %>% 
+  ungroup()
+sum_2014 <- sum(nrc_counts_2014$n)
+adj_2014 <- (sum_2014 / (total_words[3,]$total))
+
+nrc_counts_2015 <- tidy_2015 %>% 
+  inner_join(get_sentiments("nrc")) %>% 
+  count(word, sentiment, sort=TRUE) %>% 
+  filter(sentiment == "fear") %>% 
+  ungroup()
+sum_2015 <- sum(nrc_counts_2015$n)
+adj_2015 <- (sum_2015 / (total_words[4,]$total))
+
+nrc_counts_2016 <- tidy_2016 %>% 
+  inner_join(get_sentiments("nrc")) %>% 
+  count(word, sentiment, sort=TRUE) %>% 
+  filter(sentiment == "fear") %>% 
+  ungroup()
+sum_2016 <- sum(nrc_counts_2016$n)
+adj_2016 <- (sum_2016 / (total_words[5,]$total))
+
+nrc_counts_2017 <- tidy_2017 %>% 
+  inner_join(get_sentiments("nrc")) %>% 
+  count(word, sentiment, sort=TRUE) %>% 
+  filter(sentiment == "fear") %>% 
+  ungroup()
+sum_2017 <- sum(nrc_counts_2017$n)
+adj_2017 <- (sum_2017 / (total_words[6,]$total))
+
+nrc_counts_2018 <- tidy_2018 %>% 
+  inner_join(get_sentiments("nrc")) %>% 
+  count(word, sentiment, sort=TRUE) %>% 
+  filter(sentiment == "fear") %>% 
+  ungroup()
+sum_2018 <- sum(nrc_counts_2018$n)
+adj_2018 <- (sum_2018 / (total_words[7,]$total))
+
+
+fear_mat <- data.frame(
+  "paper" = c(2010, 2012, 2014, 2015, 2016, 2017, 2018),
+  "sum" = c(sum_2010, sum_2012, sum_2014, sum_2015, sum_2016, sum_2017, sum_2018),
+  "adjusted" = c(adj_2010, adj_2012, adj_2014, adj_2015, adj_2016, adj_2017, adj_2018)
+)
+par(mfrow=c(1,1))
+ggplot(data=fear_mat, aes(x=paper, y=sum)) +
+  geom_line() +
+  geom_point() + geom_text(aes(label=paper),hjust=.2, vjust=1.2) +
+  labs(title = "Total words associated with fear by paper") +
+  theme(axis.text.x=element_blank())
+
+ggplot(data=fear_mat, aes(x=paper, y=adjusted)) +
+  geom_line() +
+  geom_point() + geom_text(aes(label=paper),hjust=.2, vjust=1.2) +
+  labs(title = "Adjusted total words associated with fear by paper") +
+  theme(axis.text.x=element_blank())
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,79 @@
+---
+title: "analysis_edsight"
+author: "John Park"
+date: "7/19/2019"
+output: html_document
+---
+
+```{r}
+source("../_utils/edsight_functions.R")
+nh_dists <- school_dists %>% 
+  dplyr::filter(region %in% c("New Haven Inner Ring", "New Haven Outer Ring")) %>% 
+  rbind(c("New Haven Inner Ring", "New Haven"))
+nh_dists$district <- nh_dists$district %>%
+  paste("School District")
+```
+
+```{r}
+nh_perf <- readRDS(here("edsight/outputs/", "perf_index.rds")) %>% 
+  rename(School = `School Name`) %>% 
+  select(region, district, `District Code`, School, `School Code`, ELA_1718, Math_1718)
+
+nh_staffrace <- readRDS(here("edsight/outputs/", "staff_race.rds")) %>% 
+  select(district, School, region, Race, Percent_1819) %>% 
+  mutate_at(c('Percent_1819'), as.numeric) %>% 
+  filter(`Race` == "White") %>% 
+  rename(`Percent White` = Percent_1819) %>% 
+  select(-Race)
+```
+
+```{r}
+nh_perf_staffrace <- inner_join(nh_perf, nh_staffrace, join = c(`district`, `School`))
+dim(nh_perf_staffrace) # 125 schools
+nh_perf_staffrace <- nh_perf_staffrace %>% 
+  drop_na
+dim(nh_perf_staffrace) # 110 schools
+```
+```{r}
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+# schools in nh_perf but not in nh_staffrace
+nh_perf_uniqueschools <- nh_perf %>% 
+  filter(!(nh_perf$School %in% nh_staffrace$School)) %>% 
+  select(School)
+dim(nh_perf_uniqueschools) # 20 schools
+
+intersect(nh_perf$School, nh_staffrace$School) # 125 schools 
+```
+
+
+
+
+
+
+
+
+

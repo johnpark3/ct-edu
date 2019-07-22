@@ -1,0 +1,46 @@
+"0","nh_staffrace <- read_csv(here(""edsight/raw_data"", ""staffing_race.csv""), skip = 3) %>% "
+"0","  mutate_at(c(""District"", ""School""), na.locf) %>% "
+"0","  rename('Count_1415' = 'Count') %>% "
+"0","  rename('Percent_1415' = '% of Total') %>% "
+"0","  rename('Count_1516' = 'Count_1') %>% "
+"0","  rename('Percent_1516' = '% of Total_1') %>% "
+"0","  rename('Count_1617' = 'Count_2') %>% "
+"0","  rename('Percent_1617' = '% of Total_2') %>% "
+"0","  rename('Count_1718' = 'Count_3') %>% "
+"0","  rename('Percent_1718' = '% of Total_3') %>% "
+"0","  rename('Count_1819' = 'Count_4') %>% "
+"0","  rename('Percent_1819' = '% of Total_4') %>% "
+"0","  dplyr::filter(.$'District' %in% nh_dists$'district') %>% "
+"0","  rename('district' = ""District"") %>% "
+"0","  right_join(nh_dists, by = 'district') %>% "
+"0","  sapply(gsub, pattern = ""="", rep = """") %>% "
+"0","  as_tibble %>% "
+"0","  sapply(gsub, pattern = '""', rep = """") %>% "
+"0","  as_tibble %>% "
+"0","  na_if(""."")"
+"2","Duplicated column names deduplicated: 'Count' => 'Count_1' [6], '% of Total' => '% of Total_1' [7], 'Count' => 'Count_2' [8], '% of Total' => '% of Total_2' [9], 'Count' => 'Count_3' [10], '% of Total' => '% of Total_3' [11], 'Count' => 'Count_4' [12], '% of Total' => '% of Total_4' [13]"
+"2","Parsed with column specification:
+cols(
+  District = [31mcol_character()[39m,
+  School = [31mcol_character()[39m,
+  Race = [31mcol_character()[39m,
+  Count = [31mcol_character()[39m,
+  `% of Total` = [31mcol_character()[39m,
+  Count_1 = [31mcol_character()[39m,
+  `% of Total_1` = [31mcol_character()[39m,
+  Count_2 = [31mcol_character()[39m,
+  `% of Total_2` = [31mcol_character()[39m,
+  Count_3 = [31mcol_character()[39m,
+  `% of Total_3` = [31mcol_character()[39m,
+  Count_4 = [31mcol_character()[39m,
+  `% of Total_4` = [31mcol_character()[39m
+)
+"
+"2","4 parsing failures.
+ row col   expected     actual                                                                         file
+ 194  -- 13 columns 14 columns '/Users/johnpark/Documents/GitHub/ct-edu/edsight/raw_data/staffing_race.csv'
+1089  -- 13 columns 14 columns '/Users/johnpark/Documents/GitHub/ct-edu/edsight/raw_data/staffing_race.csv'
+1339  -- 13 columns 14 columns '/Users/johnpark/Documents/GitHub/ct-edu/edsight/raw_data/staffing_race.csv'
+1411  -- 13 columns 14 columns '/Users/johnpark/Documents/GitHub/ct-edu/edsight/raw_data/staffing_race.csv'
+"
+"0","write_rds(nh_staffrace, here(""edsight/outputs"", ""staff_race.rds""))"
