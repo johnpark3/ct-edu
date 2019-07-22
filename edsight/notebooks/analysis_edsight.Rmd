@@ -5,6 +5,18 @@ date: "7/19/2019"
 output: html_document
 ---
 
+```{r setup, echo=FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(
+	echo = FALSE,
+	fig.showtext = TRUE,
+	message = FALSE,
+	warning = FALSE,
+	dpi = 300,
+	fig.width = 7, 
+	fig.height = 5
+)
+```
+
 ```{r}
 source("../_utils/edsight_functions.R")
 nh_dists <- school_dists %>% 
@@ -17,25 +29,46 @@ nh_dists$district <- nh_dists$district %>%
 ```{r}
 nh_perf <- readRDS(here("edsight/outputs/", "perf_index.rds")) %>% 
   rename(School = `School Name`) %>% 
-  select(region, district, `District Code`, School, `School Code`, ELA_1718, Math_1718)
+  select(region, district, `District Code`, School, `School Code`, ELA_1718, Math_1718) %>% 
+  mutate_at(c('ELA_1718'), as.numeric) %>% 
+  mutate_at(c('Math_1718'), as.numeric) %>% 
+  rename(ELA = ELA_1718) %>% 
+  rename(Math = Math_1718)
 
 nh_staffrace <- readRDS(here("edsight/outputs/", "staff_race.rds")) %>% 
-  select(district, School, region, Race, Percent_1819) %>% 
-  mutate_at(c('Percent_1819'), as.numeric) %>% 
+  select(district, School, region, Race, Percent_1718) %>% 
+  mutate_at(c('Percent_1718'), as.numeric) %>% 
   filter(`Race` == "White") %>% 
-  rename(`Percent White` = Percent_1819) %>% 
-  select(-Race)
+  rename(white = Percent_1718) %>% 
+  select(-Race) %>% 
+  filter(School != "Fair Haven School") # outlier
 ```
 
 ```{r}
-nh_perf_staffrace <- inner_join(nh_perf, nh_staffrace, join = c(`district`, `School`))
-dim(nh_perf_staffrace) # 125 schools
-nh_perf_staffrace <- nh_perf_staffrace %>% 
+dat <- inner_join(nh_perf, nh_staffrace, join = c(`district`, `School`))
+dim(dat) # 124 schools
+dat <- dat %>% 
   drop_na
-dim(nh_perf_staffrace) # 110 schools
+dim(dat) # 110 schools
 ```
 ```{r}
+dat %>% 
+  arrange(-white) %>% 
+  head
+```
 
+
+```{r}
+dat %>% 
+  ggplot(aes(white, ELA)) + 
+  geom_jitter(aes(color = region), width = .5) +
+  theme(axis.text.x = element_text(angle = 30, hjust = 1))
+```
+```{r}
+dat %>% 
+  ggplot(aes(white, Math)) + 
+  geom_jitter(aes(color = region), width = .5) +
+  theme(axis.text.x = element_text(angle = 30, hjust = 1))
 ```
 
 

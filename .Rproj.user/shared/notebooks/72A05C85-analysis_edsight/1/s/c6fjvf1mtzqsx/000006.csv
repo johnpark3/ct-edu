@@ -9,5 +9,5 @@
 "0","  select(district, School, region, Race, Percent_1718) %>% "
 "0","  mutate_at(c('Percent_1718'), as.numeric) %>% "
 "0","  filter(`Race` == ""White"") %>% "
-"0","  rename(`Percent White` = Percent_1718) %>% "
+"0","  rename(white = Percent_1718) %>% "
 "0","  select(-Race)"
