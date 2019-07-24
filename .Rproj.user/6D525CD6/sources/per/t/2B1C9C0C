@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1563915192846.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3805419197",
+    "id" : "2B1C9C0C",
+    "lastKnownWriteTime" : 1563918646,
+    "last_content_update" : 1563918646379,
+    "path" : "~/Documents/GitHub/ct-edu/ctsde/notebooks/get_ctsde_ckan.Rmd",
+    "project_path" : "ctsde/notebooks/get_ctsde_ckan.Rmd",
+    "properties" : {
+        "cursorPosition" : "53,36",
+        "scrollLine" : "40"
+    },
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}

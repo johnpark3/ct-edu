@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1563917633342.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "4045949570",
+    "id" : "66411B5C",
+    "lastKnownWriteTime" : 1563978942,
+    "last_content_update" : 1563978942561,
+    "path" : "~/Documents/GitHub/ct-edu/enrollment_race.Rmd",
+    "project_path" : "enrollment_race.Rmd",
+    "properties" : {
+        "cursorPosition" : "78,71",
+        "scrollLine" : "71",
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 4,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}

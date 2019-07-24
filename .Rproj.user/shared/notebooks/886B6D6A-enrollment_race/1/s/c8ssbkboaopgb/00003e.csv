@@ -1,0 +1,37 @@
+"0","names <- c(""1718"", ""1617"", "
+"0","           ""1516"", ""1415"", "
+"0","           ""1314"", ""1213"", "
+"0","           ""1112"", ""1011"")"
+"0","df <- read_csv(here(""edsight/raw_data"", str_glue(""StaffingRace_{names[1]}.csv"")), skip=2) %>% "
+"0","  mutate_at(c(""District"", ""School""), na.locf) %>% "
+"0","  sapply(gsub, pattern = ""="", rep = """") %>% "
+"0","  as_tibble %>% "
+"0","  sapply(gsub, pattern = '""', rep = """") %>% "
+"0","  as_tibble"
+"2","Parsed with column specification:
+cols(
+  District = [31mcol_character()[39m,
+  School = [31mcol_character()[39m,
+  Race = [31mcol_character()[39m,
+  Count = [32mcol_double()[39m,
+  `% of Total` = [32mcol_double()[39m
+)
+"
+"2","8 parsing failures.
+ row   col expected actual                                                                             file
+2415 Count a double      . '/Users/johnpark/Documents/GitHub/ct-edu/edsight/raw_data/StaffingRace_1718.csv'
+2416 Count a double      . '/Users/johnpark/Documents/GitHub/ct-edu/edsight/raw_data/StaffingRace_1718.csv'
+2417 Count a double      . '/Users/johnpark/Documents/GitHub/ct-edu/edsight/raw_data/StaffingRace_1718.csv'
+2418 Count a double      . '/Users/johnpark/Documents/GitHub/ct-edu/edsight/raw_data/StaffingRace_1718.csv'
+2419 Count a double      . '/Users/johnpark/Documents/GitHub/ct-edu/edsight/raw_data/StaffingRace_1718.csv'
+.... ..... ........ ...... ................................................................................
+See problems(...) for more details.
+"
+"0","  "
+"0","for (i in 2:(length(names))) {"
+"0","  temp <- read_csv(here(""edsight/raw_data"", str_glue(""StaffingRace_{names[i]}.csv"")), skip=2) %>% "
+"0","  df <- bind_rows(df, temp)"
+"0","}"
+"2","Error in read_csv(here(""edsight/raw_data"", str_glue(""StaffingRace_{names[i]}.csv"")),  : 
+  target of assignment expands to non-language object
+"

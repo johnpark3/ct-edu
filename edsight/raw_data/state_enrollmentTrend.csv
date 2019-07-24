@@ -1,0 +1,16 @@
+"Student Enrollment Trend"
+"Student Counts by Race and Year"
+"State of Connecticut"
+
+"","YEAR",,,,,
+"RACE","2013-14","2014-15","2015-16","2016-17","2017-18","2018-19"
+"American Indian or Alaska Native",1517,1521,1491,1458,1404,1360
+"Asian",25564,26168,26856,27278,27409,27366
+"Black or African American",71294,70696,69659,69426,68697,67745
+"Hispanic/Latino of any race",116712,120848,125110,129440,132940,136756
+"Native Hawaiian or Other Pacific Islander",455,510,529,546,646,554
+"Not Reported",0,0,0,0,0,0
+"Two or More Races",13000,13795,14804,15679,17423,18872
+"White",321335,312809,303366,295066,286506,277959
+"Total",549877,546347,541815,538893,535025,530612
+

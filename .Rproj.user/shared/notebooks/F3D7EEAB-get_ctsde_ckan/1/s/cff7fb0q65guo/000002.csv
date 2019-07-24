@@ -1,0 +1,6 @@
+"0","dfs <- ed_ids %>%"
+"0","  map(function(id) package_show(id = id, as = ""table"") %>%"
+"0","        `[[`(""resources"") %>%"
+"0","        `[[`(""id"")) %>%"
+"0","  map2(params, function(id, p) ds_search(resource_id = id, as = ""table"", limit = 50000, q = p$q) %>%"
+"0","        `[[`(""records""))"

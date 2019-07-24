@@ -1,0 +1,4 @@
+"0","walk2(dfs, params, function(df, p) {"
+"0","  file_name <- str_replace_all(p$name, ""-"", ""_"")"
+"0","  saveRDS(df, str_glue(here(""ctsde/outputs/{file_name}.rds"")))"
+"0","})"
