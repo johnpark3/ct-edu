@@ -1,0 +1,93 @@
+---
+title: "bullying_income"
+author: "John Park"
+date: "7/24/2019"
+output: html_document
+---
+```{r}
+source(here("edsight/_utils/edsight_functions.R"))
+nh_dists <- school_dists %>% 
+  dplyr::filter(region %in% c("New Haven Inner Ring", "New Haven Outer Ring")) %>% 
+  rbind(c("New Haven Inner Ring", "New Haven"))
+nh_dists$district <- nh_dists$district %>%
+  paste("School District")
+```
+
+## Student enrollment by race
+```{r}
+names <- c("1718", "1617", 
+           "1516", "1415", 
+           "1314", "1213")
+
+df <- map_dfr (names, function(name) { 
+  readRDS(here("ctsde/outputs", str_glue("bullying_{name}.rds")))
+  }
+  )
+
+df1 <- df %>% 
+  as_tibble() %>% 
+  select(District, Year, Variable, Value) %>% 
+  dplyr::filter(.$'District' %in% nh_dists$'district') %>% 
+  rename('district' = "District") %>% 
+  right_join(nh_dists, by = 'district') %>% 
+  sapply(gsub, pattern = " School District", rep = "") %>% 
+  as_tibble() %>% 
+  rename(year = Year) %>% 
+  rbind(c("Milford", "2015-2016", "Students with at least 1 incident", 0, "New Haven Outer Ring")) %>%  # impute for Milford
+  mutate_at('year', str_sub, start=-4, end=-1) %>% 
+  mutate_at('year', as.numeric) %>% 
+  mutate_at('Value', as.numeric) %>% 
+  na_if(-9999) %>% 
+  na_if(-6666) %>% 
+  drop_na()
+
+
+dim(df1)
+```
+East Haven: 2012-2013 - 2013-2014
+Hamden: 2012-2013 - 2015-2016
+West Haven: 2013-2014
+Branford: drop
+Guilford: 2015-2016
+Milford: 2012-2013 - 2016-2017
+North Branford: 2015-2016
+North Haven: 2015-2016
+New Haven: 2012-2013 - 2016-2017
+
+2015-2016
+I: Hamden
+O: Guilford
+O: Milford
+O: North Branford
+O: North Haven
+I: New Haven
+
+2012-2014
+East Haven
+Hamden
+Milford
+New Haven
+
+2012-2016
+Hamden
+Milford
+New Haven
+
+```{r}
+bully1216 <- df1 %>% 
+  filter(district %in% c("Hamden", "Milford", "New Haven")) %>% 
+  group_by(district, Variable) %>% 
+  mutate(fouryr_val = sum(Value)) %>% 
+  filter(year == 2016) %>% 
+  select(region, district, Variable, fouryr_val) %>% 
+  arrange(district)
+  
+```
+
+
+
+
+
+
+
+

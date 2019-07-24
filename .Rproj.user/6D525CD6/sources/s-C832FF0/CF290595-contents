@@ -149,12 +149,3 @@ df %>%
   geom_bar(stat="identity", position=position_dodge()) +
   theme(axis.text.x = element_text(angle = 20, hjust = 1))
 ```
-
-```{r}
-
-```
-
-
-
-
-

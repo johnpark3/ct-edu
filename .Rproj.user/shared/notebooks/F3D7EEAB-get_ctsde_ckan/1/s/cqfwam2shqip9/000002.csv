@@ -1,5 +1,18 @@
 "0","library(showtext)"
+"2","Loading required package: sysfonts
+"
+"2","Loading required package: showtextdb
+"
 "0","library(ckanr)"
+"2","
+Attaching package: ‘ckanr’
+
+"
+"2","The following object is masked from ‘package:dplyr’:
+
+    changes
+
+"
 "0","url <- ""http://data.ctdata.org/"""
 "0","ckanr_setup(url = url)"
 "0","ctsde_id <- organization_list(as = ""table"") %>%"

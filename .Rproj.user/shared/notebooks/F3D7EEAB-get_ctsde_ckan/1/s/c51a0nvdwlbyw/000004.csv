@@ -1,0 +1,13 @@
+"0","enroll_params <- list("
+"0","  bullying_1718 = list(title = ""bullying_1718"", name = ""bullying"", query = ""2017-2018""),"
+"0","  bullying_1617 = list(title = ""bullying_1617"",name = ""bullying"", query = ""2016-2017""),"
+"0","  bullying_1516 = list(title = ""bullying_1516"",name = ""bullying"", query = ""2015-2016""),"
+"0","  bullying_1415 = list(title = ""bullying_1415"",name = ""bullying"", query = ""2014-2015""),"
+"0","  bullying_1314 = list(title = ""bullying_1314"",name = ""bullying"", query = ""2013-2014""),"
+"0","  bullying_1213 = list(title = ""bullying_1213"",name = ""bullying"", query = ""2012-2013"")"
+"0",")"
+"0","ed_ids <- enroll_params %>%"
+"0","  map(function(p) filter(ctsde_data, name == p$name) %>% pull(id))"
+"2","Error in filter(ctsde_data, name == p$name) : 
+  object 'ctsde_data' not found
+"
