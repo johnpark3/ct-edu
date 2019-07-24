@@ -1,0 +1,219 @@
+---
+title: "Untitled"
+author: "Caleb"
+date: "7/17/2019"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r,include=F}
+library(dplyr)
+library(tidyverse)
+library(ggplot2)
+setwd("~/Documents/DataHaven/education")
+```
+
+```{r}
+staff <- read.csv("staffing_data.csv", stringsAsFactors = F)
+
+for(i in 2:nrow(staff)){
+  if(staff[i,1]==""){
+    name <- staff[i-1,1]
+    staff[i,1] <- name
+  }
+}
+
+staff <- staff %>%
+  filter(!(Assignment.Category %in% c('Administrators  Coordinators and Department Chairs - District Central Office','Library/Media - Support Staff'))) %>% 
+  filter(District %in% c('Regional School District 05','Branford School District',
+                         'East Haven School District','Guilford School District',
+                         'Hamden School District','Madison School District',
+                         'Milford School District','New Haven School District',
+                         'North Branford School District','North Haven School District',
+                         'West Haven School District',
+                         'Bethany School District',
+                         'Woodbridge School District',
+                         'Orange School District')) %>% 
+  select(-Educator.Type) %>% 
+  rename('2015' = X2014.15,'2016' = X2015.16,
+         '2017' = X2016.17,'2018' = X2017.18,
+         '2019' = X2018.19)
+
+staff_19 <- staff %>% select(District, Assignment.Category, '2019') %>% 
+  spread(Assignment.Category, '2019')
+
+total_teachers <- sum(as.numeric(staff_19[,5])) +
+  sum(as.numeric(staff_19[,11]))
+gen_ed_teachers <- sum(as.numeric(staff_19[,5]))
+sped_teachers <- sum(as.numeric(staff_19[,11]))
+
+# numbers that are manually entered are from 2019Index/education/for_writers/k12 demographics
+total_students <- 59517
+gen_ed_students <- 50768
+sped_students <- total_students-gen_ed_students
+
+# Student/Teacher Ratios:
+(total_ratio <- total_students/total_teachers)
+(gen_ratio <- gen_ed_students/gen_ed_teachers)
+(sped_ratio <- sped_students/sped_teachers)
+```
+
+```{r}
+in_ring_staff_19 <- staff_19 %>% 
+  filter(District %in% c('East Haven School District','Hamden School District',
+                         'West Haven School District'))
+
+in_ring_total_teachers <- sum(as.numeric(in_ring_staff_19[,5])) +
+  sum(as.numeric(in_ring_staff_19[,11]))
+in_ring_gen_ed_teachers <- sum(as.numeric(in_ring_staff_19[,5]))
+in_ring_sped_teachers <- sum(as.numeric(in_ring_staff_19[,11]))
+in_ring_total_students <- 14224
+in_ring_gen_ed_students <- 11778
+in_ring_sped_students <- in_ring_total_students-in_ring_gen_ed_students
+
+# Student/Teacher Ratios:
+(in_ring_total_ratio <- in_ring_total_students/in_ring_total_teachers)
+(in_ring_gen_ratio <- in_ring_gen_ed_students/in_ring_gen_ed_teachers)
+(in_ring_sped_ratio <- in_ring_sped_students/in_ring_sped_teachers)
+```
+
+```{r}
+out_ring_staff_19 <- staff_19 %>% 
+  filter(!(District %in% c('East Haven School District','Hamden School District',
+                           'West Haven School District','New Haven School District')))
+
+out_ring_total_teachers <- sum(as.numeric(out_ring_staff_19[,5])) +
+  sum(as.numeric(out_ring_staff_19[,11]))
+out_ring_gen_ed_teachers <- sum(as.numeric(out_ring_staff_19[,5]))
+out_ring_sped_teachers <- sum(as.numeric(out_ring_staff_19[,11]))
+out_ring_total_students <- 24029
+out_ring_gen_ed_students <- 20878
+out_ring_sped_students <- out_ring_total_students-out_ring_gen_ed_students
+
+# Student/Teacher Ratios:
+(out_ring_total_ratio <- out_ring_total_students/out_ring_total_teachers)
+(out_ring_gen_ratio <- out_ring_gen_ed_students/out_ring_gen_ed_teachers)
+(out_ring_sped_ratio <- out_ring_sped_students/out_ring_sped_teachers)
+```
+
+```{r}
+nh_ring_staff_19 <- staff_19 %>% 
+  filter(District == 'New Haven School District')
+
+nh_ring_total_teachers <- sum(as.numeric(nh_ring_staff_19[,5])) +
+  sum(as.numeric(nh_ring_staff_19[,11]))
+nh_ring_gen_ed_teachers <- sum(as.numeric(nh_ring_staff_19[,5]))
+nh_ring_sped_teachers <- sum(as.numeric(nh_ring_staff_19[,11]))
+nh_ring_total_students <- 21264
+nh_ring_gen_ed_students <- 18112
+nh_ring_sped_students <- nh_ring_total_students-nh_ring_gen_ed_students
+
+# Student/Teacher Ratios:
+(nh_ring_total_ratio <- nh_ring_total_students/nh_ring_total_teachers)
+(in_ring_gen_ratio <- nh_ring_gen_ed_students/nh_ring_gen_ed_teachers)
+(in_ring_sped_ratio <- nh_ring_sped_students/nh_ring_sped_teachers)
+```
+
+```{r,warning=F}
+stud_19 <- read.csv('enrollment2019.csv', stringsAsFactors = F)
+stud_19 <- stud_19 %>% select(-District.Code) %>%
+  filter(District %in% c('Regional School District 05','Branford School District',
+                         'East Haven School District','Guilford School District',
+                         'Hamden School District','Madison School District',
+                         'Milford School District','New Haven School District',
+                         'North Branford School District','North Haven School District',
+                         'West Haven School District',
+                         'Bethany School District',
+                         'Woodbridge School District',
+                         'Orange School District'))
+
+teacher_student_19 <- stud_19 %>% inner_join(staff_19, by = 'District') %>% 
+  select(1:4,8,14) %>% 
+  rename(Gen_Ed_Teachers = `General Education - Teachers and Instructors`,
+         Sped_Teachers = `Special Education - Teachers and Instructors`) %>%
+  mutate_at(c(2:6), as.numeric) %>%
+  mutate(Total.Teachers = Gen_Ed_Teachers + Sped_Teachers)
+
+ratio_19 <- teacher_student_19 %>% 
+  mutate(total_ratio = Total/Total.Teachers, 
+         gen_ed_ratio = General.Education/Gen_Ed_Teachers,
+         sped_ratio = Special.Education/Sped_Teachers) %>% 
+  select(1,8:10) %>% arrange(District)
+```
+
+```{r}
+sbac_rates <- read.csv('SBAC pass rates 2015-2018.csv', stringsAsFactors = F)
+sbac_rates <- sbac_rates %>% select(Name,Subject,X2017.18_pass_rate) %>% 
+  filter(Name %in% c('Regional School District 05','Branford','East Haven',
+                     'Guilford','Hamden','Madison','Milford','New Haven',
+                      'North Branford','North Haven','West Haven','Bethany',
+                      'Woodbridge','Orange')) %>% 
+  rename(`pass_rate_18` = X2017.18_pass_rate, District = Name) %>% 
+  arrange(District)
+
+sbac_math <- sbac_rates %>% filter(Subject == "Math")
+sbac_ela <- sbac_rates %>% filter(Subject == "ELA")
+```
+
+```{r}
+d_sbac_math <- data.frame(x=ratio_19$total_ratio, y=sbac_math$pass_rate_18, z=sbac_math$District)
+d_sbac_ela <- data.frame(x=ratio_19$total_ratio, y=sbac_ela$pass_rate_18, z=sbac_ela$District)
+p_sbac_math <- ggplot(d_sbac_math, aes(x,100*y, label=z)) + geom_point() + 
+  labs(x = 'Student to Teacher Ratio',
+       y = 'Math SBAC Pass Rate',
+       title = 'Math SBAC Pass Rate by Student to Teacher Ratio') + 
+  coord_cartesian(ylim = c(13,88)) +
+  geom_label(aes(label=z))
+p_sbac_ela <- ggplot(d_sbac_ela, aes(x,100*y, label=z)) + geom_point() + 
+  labs(x = 'Student to Teacher Ratio',
+       y = 'ELA SBAC Pass Rate',
+       title = 'ELA SBAC Pass Rate by Student to Teacher Ratio') + 
+  coord_cartesian(ylim = c(25,88)) +
+  geom_label(aes(label=z))
+p_sbac_math
+p_sbac_ela
+```
+
+```{r}
+sat_scores <- read.csv('SAT_data.csv') %>% select(1,2,16,17) %>% 
+  filter(District %in% c('Regional School District 05','Branford School District',
+                         'East Haven School District','Guilford School District',
+                         'Hamden School District','Madison School District',
+                         'Milford School District','New Haven School District',
+                         'North Branford School District','North Haven School District',
+                         'West Haven School District',
+                         'Bethany School District',
+                         'Woodbridge School District',
+                         'Orange School District')) %>% 
+  rename(pass_rate = Level.3.4Met.or.Exceeded.Pct) %>% 
+  arrange(District)
+sat_math <- sat_scores %>% filter(Subject == 'Math')
+sat_ela <- sat_scores %>% filter(Subject == 'ELA')
+```
+
+```{r}
+d_sat_math <- data.frame(x=ratio_19$total_ratio[-c(1,11,14)], 
+                         y=sat_math$AverageScore, z=sbac_math$District[-c(1,11,14)])
+d_sat_ela <- data.frame(x=ratio_19$total_ratio[-c(1,11,14)], 
+                        y=sat_ela$AverageScore, z=sbac_ela$District[-c(1,11,14)])
+p_sat_math <- ggplot(d_sat_math, aes(x,y, label=z)) + geom_point() + 
+  labs(x = 'Student to Teacher Ratio',
+       y = 'SAT Math Average Scores',
+       title = 'SAT Math Average Scores by Student to Teacher Ratio') +
+  geom_label(aes(label=z))
+p_sat_ela <- ggplot(d_sbac_ela, aes(x,y, label=z)) + geom_point() + 
+  labs(x = 'Student to Teacher Ratio',
+       y = 'SAT ELA Pass Rate',
+       title = 'SAT ELA Average Scores by Student to Teacher Ratio') +
+  geom_label(aes(label=z))
+p_sat_math
+p_sat_ela
+```
+
+
+
+
+
