@@ -1,4 +1,0 @@
-map_dfr (names, function(name) { 
-]0;~/Documents/GitHub/ct-edu[?1034hJohns-MacBook-Air-2:ct-edu johnpark$ map_dfr (names, function(name) { 
-bash: syntax error near unexpected token `names,'
-]0;~/Documents/GitHub/ct-eduJohns-MacBook-Air-2:ct-edu johnpark$ 

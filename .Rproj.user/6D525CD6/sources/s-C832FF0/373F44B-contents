@@ -1,0 +1,17 @@
+---
+title: "test"
+author: "John Park"
+date: "7/24/2019"
+output: html_document
+---
+
+```{r}
+cwi::regions %>%
+  enframe(name = "region", value = "town") %>%
+  unnest() %>% 
+  dplyr::filter(region %in% main_regions) %>% 
+  rename(district = town) %>%
+  distinct() %>%
+  arrange(region, district)
+```
+

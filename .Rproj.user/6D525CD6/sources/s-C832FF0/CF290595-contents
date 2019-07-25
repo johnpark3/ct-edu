@@ -46,7 +46,7 @@ df1 <- df1 %>%
   mutate(perc_white = 100 * Value / total) %>% 
   mutate(student = 100 - perc_white) %>% # percent minority students
   mutate(year = Year) %>% 
-  mutate_at('year', str_sub, start=-4, end=-1) %>% 
+  mutate_at('year', str_sub, start=1, end=4) %>% 
   mutate_at('year', as.numeric) %>% 
   select(region, district, year, student)
 
@@ -137,8 +137,7 @@ df2 %>%
 df <- bind_cols(df1, df2) %>% 
   select(region, district, year, student, staff) %>% 
   gather(type, perc_minority, student:staff, factor_key = TRUE) %>% 
-  sapply(gsub, pattern = " School District", rep = "") %>% 
-  as_tibble() %>% 
+  mutate_at("district", str_replace, pattern = " School District", replacement = "") %>% 
   mutate_at(c('year', 'perc_minority'), as.numeric)
 ```
 

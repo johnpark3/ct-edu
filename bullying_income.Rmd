@@ -12,6 +12,55 @@ nh_dists <- school_dists %>%
 nh_dists$district <- nh_dists$district %>%
   paste("School District")
 ```
+```{r}
+df1 <- read_csv(here("edsight/raw_data", "bullying1318.csv"), skip=4) %>% 
+  select(-`District Code`)
+
+# df2 <- read_csv(here("edsight/raw_data", "bullying1213.csv"), skip=4) %>% 
+#   gather(`Bullying Type`, '2012-13', 3:4) %>% 
+#   rename(`District` = `DISTRICT`) %>% 
+#   arrange(District) %>% 
+#   select(-`District Code`)
+
+# df <- left_join(df1, df2) %>% 
+df <- df1 %>% 
+  gather(`year`, value, '2013-14':'2017-18') %>% 
+  dplyr::filter(.$'District' %in% nh_dists$'district') %>% 
+  rename('district' = "District") %>% 
+  right_join(nh_dists, by = 'district') %>% 
+  drop_na() %>% # 152, 5 // 130, 5
+  mutate_at('year', str_sub, start=1, end=4) %>% # first year of the school year
+  mutate_at('year', as.numeric) %>% 
+  mutate_at("district", str_replace, pattern = " School District", replacement = "") %>% 
+  arrange(district, year) %>% 
+  rename(type = `Bullying Type`)
+
+df_high <- df %>% 
+  mutate_at("value", str_replace, pattern = "\\*", replacement = "5") %>% 
+  mutate_at("value", as.numeric) %>% 
+  group_by(district, type) %>% 
+  mutate(fouryr_val_high = sum(value)) %>% 
+  ungroup() %>% 
+  filter(year == 2017) %>% 
+  select(region, district, type, fouryr_val_high)
+
+df_low <- df %>% 
+  mutate_at("value", str_replace, pattern = "\\*", replacement = "0") %>% 
+  mutate_at("value", as.numeric) %>% 
+  group_by(district, type) %>% 
+  mutate(fouryr_val_low = sum(value)) %>% 
+  ungroup() %>% 
+  filter(year == 2017) %>% 
+  select(region, district, type, fouryr_val_low)
+
+df_high_low <- bind_cols(df_high, df_low) %>% 
+  filter(type == "Number of students with at least 1 bullying incident") %>% 
+  select(region, district, fouryr_val_low, fouryr_val_high)
+```
+```{r}
+
+```
+
 
 ## Student enrollment by race
 ```{r}
@@ -30,8 +79,7 @@ df1 <- df %>%
   dplyr::filter(.$'District' %in% nh_dists$'district') %>% 
   rename('district' = "District") %>% 
   right_join(nh_dists, by = 'district') %>% 
-  sapply(gsub, pattern = " School District", rep = "") %>% 
-  as_tibble() %>% 
+  mutate_at("district", str_replace, pattern = " School District", replacement = "") %>% 
   rename(year = Year) %>% 
   rbind(c("Milford", "2015-2016", "Students with at least 1 incident", 0, "New Haven Outer Ring")) %>%  # impute for Milford
   mutate_at('year', str_sub, start=-4, end=-1) %>% 
@@ -39,10 +87,7 @@ df1 <- df %>%
   mutate_at('Value', as.numeric) %>% 
   na_if(-9999) %>% 
   na_if(-6666) %>% 
-  drop_na()
-
-
-dim(df1)
+  drop_na() # 41, 5
 ```
 East Haven: 2012-2013 - 2013-2014
 Hamden: 2012-2013 - 2015-2016

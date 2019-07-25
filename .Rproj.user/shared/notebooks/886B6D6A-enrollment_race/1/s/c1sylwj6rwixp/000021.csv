@@ -1,0 +1,6 @@
+"0","df2 %>% "
+"0","  filter(region == ""New Haven Inner Ring"") %>% "
+"0","  ggplot(aes(x = year, y = staff, group = district)) +"
+"0","  geom_line(aes(color = district)) +"
+"0","  geom_point() + "
+"0","  theme(axis.text.x = element_text(angle = 20, hjust = 1))"
