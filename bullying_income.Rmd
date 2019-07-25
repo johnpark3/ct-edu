@@ -181,37 +181,34 @@ quants2 %>%
     scale_color_manual(values = tol12[c(1, 2, 3, 4, 5, 7, 9, 10)]) +
     labs(title = "Household Income Percentiles by Region", 
          y = "Times greater than bottom 20%",
-         x = "Region")
+         x = "Region",
+         color = "Income\npercentile",
+         caption = "Income data from 2017 Public Use Microdata Sample (PUMS) data")
+
+  ggsave(filename="income_region.png", path = here("graphs"))
 ```
 
 ```{r}
 ## KEEP
 df_high_low %>%
-  arrange(desc(ring)) %>% 
+  arrange(desc(ring), fouryr_val_high) %>% 
   mutate(ring = as_factor(ring)) %>% 
   mutate(district = as_factor(district)) %>% 
-  ggplot(aes(x = district, y = fouryr_val_high, color=ring)) +
-    geom_point(size = 4, alpha = 0.9) +
+  ggplot(aes(x = district, y = fouryr_val_high)) +
+    geom_bar(aes(linetype=ring), stat="identity", fill="gray80", col="gray40") +
     coord_flip() + 
     theme_din(xgrid = T, ygrid = "dotted") +
     scale_color_manual(values = tol12[c(1, 2, 3, 4, 5, 7, 9, 10)]) +
     labs(title = "Bullying by District", 
          y = "Total Incidents, 2013-2017",
-         x = "District")
-```
-
-```{r}
-df_high_low2 %>%
-  filter(region != "NA") %>% 
-  mutate(region = as_factor(region)) %>% 
-  ggplot(aes(x = region)) +
-    geom_bar(aes(y=median_high), stat="identity", color="black", fill="white") +
-    coord_flip() +
-    theme_din(xgrid = T, ygrid = "dotted") +
-    scale_color_manual(values = tol12[c(1, 2, 3, 4, 5, 7, 9, 10)]) +
-    labs(title = "Bullying by Region", 
-         y = "Total Incidents, 2013-2017 (Median across districts)",
-         x = "Region")
+         x = "District",
+         linetype='ring',
+         caption = "Data from EdSight (CSDE)") +
+  scale_linetype_manual(values = c("solid", "twodash"),
+                      name = element_blank(),
+                      labels = c("Inner Ring", "Outer Ring"),
+                      guide = guide_legend(reverse = TRUE) )
+ggsave(filename="bullying_district.png", path = here("graphs"))
 ```
 
 ## Combine datasets
@@ -228,7 +225,7 @@ bully_inc %>%
   mutate(region = as_factor(region) %>% fct_reorder(median_high, max)) %>%
   mutate(percentile = as_factor(percentile)) %>% 
   ggplot(aes(x=region)) + 
-  geom_bar(aes(y=median_high/8), stat="identity", fill="gray90") +
+  geom_bar(aes(y=median_high/8), stat="identity", fill="gray80", width=.5) +
   geom_point(aes(y=value*13, color=percentile), size = 4, alpha = 0.92) +
   scale_y_continuous(sec.axis = sec_axis(~.*(1/13), name = "Times greater than bottom 20%")) +
   coord_flip() +
@@ -238,7 +235,9 @@ bully_inc %>%
         y = "Total reported bullying incidents, 2013-17 (Median across districts)",
         x = "Region",
        color = "Income\npercentile",
-       caption = "Income data from 2017 Public Use Microdata Sample (PUMS) data")
+       caption = "Income data from 2017 Public Use Microdata Sample (PUMS) data\nBullying data from EdSight (CSDE)")
+
+ggsave(filename="bullying_income.png", path = here("graphs"))
 ```
 
 
