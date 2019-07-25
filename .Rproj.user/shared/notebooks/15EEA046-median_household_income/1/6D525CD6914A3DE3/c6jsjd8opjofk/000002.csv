@@ -1,0 +1,7 @@
+"0","total_hh <- readRDS(here(""utils/basic_demographics.rds"")) %>%
+  filter(indicator == ""tenure"", variable == ""total_households"") %>%
+  filter(str_detect(level, ""towns"")) %>%
+  select(name, total_hh = estimate)
+"
+"2","Error in gzfile(file, ""rb"") : cannot open the connection
+"

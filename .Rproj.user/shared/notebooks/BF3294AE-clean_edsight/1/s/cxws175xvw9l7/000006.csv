@@ -1,0 +1,8 @@
+"0","source(here(""_utils/edsight_functions.R""))
+"
+"2","Parsed with column specification:
+cols(
+  district = [32mcol_double()[39m,
+  towns = [31mcol_character()[39m
+)
+"

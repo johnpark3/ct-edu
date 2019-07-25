@@ -6,7 +6,7 @@ output: html_document
 ---
 
 ```{r}
-source("../_utils/edsight_functions.R")
+source(here("_utils/edsight_functions.R"))
 nh_dists <- school_dists %>% 
   dplyr::filter(region %in% c("New Haven Inner Ring", "New Haven Outer Ring")) %>% 
   rbind(c("New Haven Inner Ring", "New Haven"))

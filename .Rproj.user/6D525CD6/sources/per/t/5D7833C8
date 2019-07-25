@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1564023079050.000,
+    "dirty" : true,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2931509950",
+    "id" : "5D7833C8",
+    "lastKnownWriteTime" : 1564022439,
+    "last_content_update" : 1564023251910,
+    "path" : "~/Documents/GitHub/2019index/income_and_wealth/notebooks/median_household_income.Rmd",
+    "project_path" : null,
+    "properties" : {
+        "cursorPosition" : "36,35",
+        "last_setup_crc32" : "914A3DE31413af7e",
+        "scrollLine" : "9"
+    },
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}

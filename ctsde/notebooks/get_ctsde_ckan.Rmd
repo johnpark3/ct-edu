@@ -2,7 +2,7 @@
 title: "ctdata_test"
 author: "John Park"
 date: "7/15/2019"
-output: html_document
+output: github_document
 ---
 
 ```{r}

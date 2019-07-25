@@ -2,14 +2,14 @@
 title: "student_enrollment"
 author: "John Park"
 date: "7/23/2019"
-output: html_document
+output: github_document
 editor_options: 
   chunk_output_type: inline
 ---
 
 
 ```{r}
-source(here("edsight/_utils/edsight_functions.R"))
+source(here("_utils/edsight_functions.R"))
 nh_dists <- school_dists %>% 
   dplyr::filter(region %in% c("New Haven Inner Ring", "New Haven Outer Ring")) %>% 
   rbind(c("New Haven Inner Ring", "New Haven"))
