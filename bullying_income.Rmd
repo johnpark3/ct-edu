@@ -4,11 +4,21 @@ author: "John Park"
 date: "7/24/2019"
 output: github_document
 ---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = TRUE,
+	message = FALSE,
+	warning = FALSE,
+	fig.showtext = T
+)
+```
+
 ```{r}
 source(here("_utils/edsight_functions.R"))
 nh_dists <- school_dists %>% 
   dplyr::filter(region %in% c("New Haven Inner Ring", "New Haven Outer Ring")) %>% 
-  rbind(c("New Haven Inner Ring", "New Haven"))
+  rbind(c("New Haven Inner Ring", "New Haven")) %>% 
+  rename(ring = region)
 nh_dists$district <- nh_dists$district %>%
   paste("School District")
 ```
@@ -42,7 +52,7 @@ df_high <- df %>%
   mutate(fouryr_val_high = sum(value)) %>% 
   ungroup() %>% 
   filter(year == 2017) %>% 
-  select(region, district, type, fouryr_val_high)
+  select(ring, district, type, fouryr_val_high)
 
 df_low <- df %>% 
   mutate_at("value", str_replace, pattern = "\\*", replacement = "0") %>% 
@@ -51,14 +61,22 @@ df_low <- df %>%
   mutate(fouryr_val_low = sum(value)) %>% 
   ungroup() %>% 
   filter(year == 2017) %>% 
-  select(region, district, type, fouryr_val_low)
+  select(ring, district, type, fouryr_val_low)
 
 df_high_low <- bind_cols(df_high, df_low) %>% 
   filter(type == "Number of students with at least 1 bullying incident") %>% 
-  select(region, district, fouryr_val_low, fouryr_val_high)
+  select(ring, district, fouryr_val_low, fouryr_val_high)
+
+unique(df_high_low$district)
 ```
 
 # Income Inequality
+
+```{r}
+font_add_google("Roboto Condensed", "roboto")
+showtext_auto()
+tol12 <- PerformanceAnalytics::tol12qualitative
+```
 
 ```{r}
 puma_xwalk <- readRDS(here("_utils/region2puma.rds")) %>%
@@ -96,32 +114,90 @@ type_des <- subset(income_des, is_family, drop = T)
 svyquantile(~hhincome, income_des, 0.5)
 ```
 ```{r}
-svyby(~hhincome, ~region, income_des, svyquantile, quantiles = c(0.2, 0.5, 0.95), keep.var = F) %>%
+quants1 <- svyby(~hhincome, ~region, income_des, svyquantile, quantiles = c(0.2, 0.5, 0.8, 0.95), keep.var = F) %>%
   as.data.frame() %>%
   as_tibble() %>%
-  setNames(c("region", "q20", "q50", "q95")) %>%
+  setNames(c("region", "q20", "q50", "q80","q95")) %>%
   mutate_if(is.numeric, round) %>%
-  mutate(ratio95_20 = round(q95 / q20, digits = 3))
+  mutate(ratio95_20 = round(q95 / q20, digits = 3)) %>% 
+  mutate(ratio80_20 = round(q80 / q20, digits = 3))
 ```
-In `New Haven Town`, the highest-earning 5% makes 13.3x more money than the bottom 20%.
-In `West Haven, Milford & Orange Towns`, the highest-earning 5% makes 8x more money than the bottom 20%.
-In `East Haven, Branford, Guilford, Madison & North Branford Towns` and `Hamden, Ansonia, Seymour, Derby, Woodbridge & Bethany Towns`, the highest-earning 5% makes 8.4x more money than the bottom 20%.
-
-
+In `New Haven Town`, the highest-earning 5% makes 13.3x more money than the bottom 20%. The highest-earning 20% makes 6.3x more money than the bottom 20%. 
+In `West Haven, Milford & Orange Towns`, the highest-earning 5% makes 8x more money than the bottom 20%. The highest-earning 20% makes 4.7x more money than the bottom 20%. 
+IN `Hamden, Ansonia, Seymour, Derby, Woodbridge & Bethany Towns`, the highest-earning 5% makes 8.4x more money than the bottom 20%. The highest-earning 20% makes 4.8x more money than the bottom 20%. 
+In `East Haven, Branford, Guilford, Madison & North Branford Towns`, the highest-earning 5% makes 8.4x more money than the bottom 20%. The highest-earning 20% makes 4.3x more money than the bottom 20%. 
 
 ```{r}
-by_race_ct <- svyby(~hhincome, ~race, income_des, svyquantile, quantiles = 0.5, keep.var = F) %>%
-  as.data.frame()
-
-by_race_region <- svyby(~hhincome, ~region + race, income_des, svyquantile, quantiles = 0.5, keep.var = F) %>%
-  as.data.frame()
-
-income_by_race <- bind_rows(by_race_ct %>% mutate(region = "CT"), by_race_region) %>%
+quants <- svyby(~hhincome, ~region, income_des, svyquantile, quantiles = c(0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9), keep.var = F) %>%
+  as.data.frame() %>%
+  as_tibble() %>%
+  setNames(c("region", "q20", "q30", "q40", "q50", "q60", "q70", "q80","q90")) %>%
   mutate_if(is.numeric, round) %>%
-  select(name = region, race, med_income = statistic)
+  mutate(ratio90_20 = round(q90 / q20, digits = 3)) %>% 
+  mutate(ratio80_20 = round(q80 / q20, digits = 3)) %>%
+  mutate(ratio70_20 = round(q70 / q20, digits = 3)) %>% 
+  mutate(ratio60_20 = round(q60 / q20, digits = 3)) %>%
+  mutate(ratio50_20 = round(q50 / q20, digits = 3)) %>% 
+  mutate(ratio40_20 = round(q40 / q20, digits = 3)) %>%
+  mutate(ratio30_20 = round(q30 / q20, digits = 3)) %>% 
+  mutate(ratio20_20 = round(q20 / q20, digits = 3))
 ```
 
+```{r}
+quants2 <- quants %>% 
+  mutate_at("region", str_replace, pattern = " Towns", replacement = "") %>% 
+  mutate_at("region", str_replace, pattern = " Town", replacement = "") %>% 
+  mutate_at("region", str_replace, pattern = "East Haven, Branford, Guilford, Madison & North Branford", replacement = "EH, B, G, M, NB") %>% 
+  mutate_at("region", str_replace, pattern = "Hamden, Ansonia, Seymour, Derby, Woodbridge & Bethany", replacement = "H, A, S, D, W, B") %>% 
+  mutate_at("region", str_replace, pattern = "West Haven, Milford & Orange", replacement = "WH, Milford, Orange") %>% 
+  gather(percentile, value, ratio90_20:ratio20_20) %>% 
+  select(-(q20:q90)) %>% 
+  mutate_at('percentile', substr, start=6, stop=7) %>% 
+  mutate_at('percentile', as.numeric)
+```
 
+```{r}
+quants2 %>%
+  mutate(region = as_factor(region) %>% fct_reorder(value, max)) %>%
+  mutate(percentile = as_factor(percentile)) %>% 
+  ggplot(aes(x = region, y = value, color=percentile)) +
+    geom_point(size = 4, alpha = 0.9) +
+    coord_flip() +
+    theme_din(xgrid = T, ygrid = "dotted") +
+    scale_color_manual(values = tol12[c(1, 2, 3, 4, 5, 7, 9, 10)]) +
+    labs(title = "Household Income Percentiles by Region", 
+         y = "Times greater than bottom 20%",
+         x = "Region")
+```
+
+# fixing bullying data by region
+```{r}
+ns2 <- data.frame(
+  region = c("Hamden, Ansonia, Seymour, Derby, Woodbridge & Bethany", 
+              "East Haven, Branford, Guilford, Madison & North Branford",
+              "West Haven, Milford & Orange",
+              "New Haven"
+             )
+) %>% lapply(as.character) %>% as_tibble()
+
+df_high_low <- regions2 %>% 
+  fuzzyjoin::regex_right_join(df_high_low, by = c("region" = "district"))
+```
+
+```{r}
+## KEEP
+df_high_low %>%
+  mutate(region = as_factor(region)) %>% 
+  mutate(district = as_factor(district)) %>% 
+  ggplot(aes(x = district, y = fouryr_val_high, color=region)) +
+    geom_point(size = 4, alpha = 0.9) +
+    coord_flip() +
+    theme_din(xgrid = T, ygrid = "dotted") +
+    scale_color_manual(values = tol12[c(1, 2, 3, 4, 5, 7, 9, 10)]) +
+    labs(title = "Bullying by Region", 
+         y = "Total Incidents, 2013-2017",
+         x = "Region")
+```
 
 
 
