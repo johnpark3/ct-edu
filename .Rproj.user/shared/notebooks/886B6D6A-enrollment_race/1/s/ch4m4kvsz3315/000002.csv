@@ -4,3 +4,7 @@
 "0","  rbind(c(""New Haven Inner Ring"", ""New Haven""))"
 "0","nh_dists$district <- nh_dists$district %>%"
 "0","  paste(""School District"")"
+"0","names <- c(""1718"", ""1617"", "
+"0","           ""1516"", ""1415"", "
+"0","           ""1314"", ""1213"", "
+"0","           ""1112"", ""1011"")"

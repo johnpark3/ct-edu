@@ -1,0 +1,2 @@
+bind_cols(df1, df2) %>% 
+  select(region:student_total_count, staff:staff_total_count)
