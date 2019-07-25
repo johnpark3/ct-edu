@@ -61,11 +61,18 @@ df_high_low <- bind_cols(df_high, df_low) %>%
 # Income Inequality
 
 ```{r}
-total_hh <- readRDS(here("utils/basic_demographics.rds")) %>%
+total_hh <- readRDS(here("_utils/basic_demographics.rds")) %>%
   filter(indicator == "tenure", variable == "total_households") %>%
   filter(str_detect(level, "towns")) %>%
   select(name, total_hh = estimate)
-here()
+
+income <- multi_geo_acs("B19013", us = T, year = 2017) %>%
+  select(level, name = NAME, estimate, moe)
+
+town_income <- income %>%
+  filter(str_detect(level, "towns")) %>%
+  select(-moe) %>%
+  inner_join(total_hh, by = "name")
 ```
 
 
