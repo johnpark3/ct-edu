@@ -1,0 +1,24 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1564083659421.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "E7FE6FAC",
+    "lastKnownWriteTime" : 1564082209,
+    "last_content_update" : 1564082209,
+    "path" : "~/Documents/GitHub/ct-edu/bullying_income.Rmd",
+    "project_path" : "bullying_income.Rmd",
+    "properties" : {
+        "cursorPosition" : "7,0",
+        "last_setup_crc32" : "C6543C5F1413af7e",
+        "scrollLine" : "0",
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}

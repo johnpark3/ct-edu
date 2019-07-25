@@ -59,7 +59,8 @@ df1 <- df1 %>%
   mutate(year = Year) %>% 
   mutate_at('year', str_sub, start=1, end=4) %>% 
   mutate_at('year', as.numeric) %>% 
-  select(region, district, year, Value, student)
+  rename(count = Value)
+  select(region, district, year, student, count)
 
 dim(df1)
 ```
@@ -110,13 +111,14 @@ df2 <- df2 %>%
   right_join(nh_dists, by = 'district') %>% 
   
   group_by(district, year) %>% 
-  mutate(total = sum(Count)) %>% 
-  dplyr::filter(`Race` == "White") %>% 
-  mutate(tot_white = sum(Count)) %>% 
-  mutate(perc_white = 100 * tot_white / total) %>% 
+  mutate(total_count = sum(Count)) %>% 
+  dplyr::filter(`Race` == "White") %>%
+  mutate(white_count = sum(Count)) %>% 
+  mutate(perc_white = 100 * white_count / total_count) %>% 
   mutate(staff = 100 - perc_white) %>% # percent minority staff
-  select(region, district, year, staff) %>% 
-  distinct(region, district, year, staff)
+  ungroup() %>% 
+  select(region, district, year, staff, white_count, total_count) %>% 
+  distinct()
 
 dim(df2)
 ```

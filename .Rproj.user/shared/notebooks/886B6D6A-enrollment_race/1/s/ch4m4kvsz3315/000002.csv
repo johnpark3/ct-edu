@@ -1,10 +1,4 @@
-"0","source(here(""edsight/_utils/edsight_functions.R""))"
-"2","Parsed with column specification:
-cols(
-  district = [32mcol_double()[39m,
-  towns = [31mcol_character()[39m
-)
-"
+"0","source(here(""_utils/edsight_functions.R""))"
 "0","nh_dists <- school_dists %>% "
 "0","  dplyr::filter(region %in% c(""New Haven Inner Ring"", ""New Haven Outer Ring"")) %>% "
 "0","  rbind(c(""New Haven Inner Ring"", ""New Haven""))"
