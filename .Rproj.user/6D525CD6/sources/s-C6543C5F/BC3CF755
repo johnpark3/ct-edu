@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1564075046835.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1593471865",
+    "id" : "BC3CF755",
+    "lastKnownWriteTime" : 1562704722,
+    "last_content_update" : 1564075078740,
+    "path" : "~/Documents/GitHub/2019index/_utils/region_to_puma.Rmd",
+    "project_path" : null,
+    "properties" : {
+        "cursorPosition" : "36,0",
+        "last_setup_crc32" : "C6543C5F1413af7e",
+        "scrollLine" : "17"
+    },
+    "relative_order" : 4,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}

@@ -90,7 +90,10 @@ df_high_low2 <- regions2 %>%
   group_by(region) %>% 
   mutate(median_low = median(fouryr_val_low)) %>% 
   mutate(median_high= median(fouryr_val_high)) %>% 
-  ungroup()
+  ungroup() %>% 
+  select(region, median_low, median_high) %>% 
+  distinct() %>% 
+  drop_na()
 ```
 
 ## Income Inequality
@@ -202,7 +205,7 @@ df_high_low2 %>%
   filter(region != "NA") %>% 
   mutate(region = as_factor(region)) %>% 
   ggplot(aes(x = region)) +
-    geom_bar(aes(y=median_high), stat="identity") +
+    geom_bar(aes(y=median_high), stat="identity", color="black", fill="white") +
     coord_flip() +
     theme_din(xgrid = T, ygrid = "dotted") +
     scale_color_manual(values = tol12[c(1, 2, 3, 4, 5, 7, 9, 10)]) +
@@ -222,10 +225,20 @@ bully_inc <- bully %>%
 ## Combined graph
 ```{r}
 bully_inc %>% 
-  mutate(region = as_factor(region)) %>% 
-  group_by(percentile) %>% 
+  mutate(region = as_factor(region) %>% fct_reorder(median_high, max)) %>%
+  mutate(percentile = as_factor(percentile)) %>% 
   ggplot(aes(x=region)) + 
-  geom_bar(aes(y=median_high), stat="median")
+  geom_bar(aes(y=median_high/8), stat="identity", fill="gray90") +
+  geom_point(aes(y=value*13, color=percentile), size = 4, alpha = 0.92) +
+  scale_y_continuous(sec.axis = sec_axis(~.*(1/13), name = "Times greater than bottom 20%")) +
+  coord_flip() +
+  theme_din(xgrid = T, ygrid = "dotted") +
+  scale_color_manual(values = tol12[c(1, 2, 3, 4, 5, 7, 9, 10)]) +
+  labs(title = "Bullying and Income Inequailty by Region", 
+        y = "Total reported bullying incidents, 2013-17 (Median across districts)",
+        x = "Region",
+       color = "Income\npercentile",
+       caption = "Income data from 2017 Public Use Microdata Sample (PUMS) data")
 ```
 
 
