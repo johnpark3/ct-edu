@@ -1,0 +1,8 @@
+"0","bully_inc %>% 
+  mutate(region = as_factor(region)) %>% 
+  group_by(percentile) %>% 
+  ggplot(aes(x=region)) + 
+  geom_bar(aes(y=median_high), stat=""median"")
+"
+"2","Error: Can't find `stat` called ""median""
+"
