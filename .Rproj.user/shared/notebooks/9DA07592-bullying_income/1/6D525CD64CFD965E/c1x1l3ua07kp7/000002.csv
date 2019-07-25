@@ -1,0 +1,5 @@
+"0","pums_ddi <- read_ipums_ddi(here(""_utils/household_income_type_pums/usa_00048.xml""))
+"
+"2","Error in read_ipums_ddi(here(""_utils/household_income_type_pums/usa_00048.xml"")) : 
+  could not find function ""read_ipums_ddi""
+"

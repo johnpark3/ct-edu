@@ -61,18 +61,30 @@ df_high_low <- bind_cols(df_high, df_low) %>%
 # Income Inequality
 
 ```{r}
-total_hh <- readRDS(here("_utils/basic_demographics.rds")) %>%
-  filter(indicator == "tenure", variable == "total_households") %>%
-  filter(str_detect(level, "towns")) %>%
-  select(name, total_hh = estimate)
-
-income <- multi_geo_acs("B19013", us = T, year = 2017) %>%
-  select(level, name = NAME, estimate, moe)
-
-town_income <- income %>%
-  filter(str_detect(level, "towns")) %>%
-  select(-moe) %>%
-  inner_join(total_hh, by = "name")
+puma_xwalk <- readRDS(here("_utils/region2puma.rds")) %>%
+  mutate(id = str_sub(id, -3, -1) %>% as.factor()) %>%
+  filter(region == "Greater New Haven") %>% 
+  select(-region) %>% 
+  rename(region = puma)
+```
+```{r}
+pums_ddi <- read_ipums_ddi(here("_utils/household_income_type_pums/usa_00048.xml"))
+pums <- read_ipums_micro(pums_ddi) %>%
+  setNames(names(.) %>% str_to_lower()) %>%
+  mutate_if(is.labelled, function(x) as_factor(lbl_clean(x))) %>%
+  left_join(puma_xwalk, by = c("puma" = "id"))%>%
+  mutate(hhincome = as.numeric(as.character(hhincome))) %>%
+  mutate(race = race %>%
+           fct_recode(Black = "Black/African American/Negro") %>%
+           fct_other(keep = c("Black", "White"), other_level = "Other race")) %>%
+  mutate(race2 = ifelse(hispan == "Not Hispanic", as.character(race), "Latino") %>% as_factor()) %>%
+  select(-race:-hispand) %>%
+  rename(race = race2) %>%
+  mutate(hhtype = hhtype %>%
+           fct_recode("Single female" = "Female householder, no husband present",
+                      "Single male" = "Male householder, no wife present",
+                      "Married couple" = "Married-couple family household")) %>%
+  mutate(is_family = hhtype %in% c("Single female", "Single male", "Married couple"))
 ```
 
 
