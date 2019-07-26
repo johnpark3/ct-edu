@@ -36,42 +36,45 @@ nh_dists$district <- nh_dists$district %>%
 df1 <- read_csv(here("edsight/raw_data", "bullying1318.csv"), skip=4) %>% 
   select(-`District Code`)
 
-# df2 <- read_csv(here("edsight/raw_data", "bullying1213.csv"), skip=4) %>% 
-#   gather(`Bullying Type`, '2012-13', 3:4) %>% 
-#   rename(`District` = `DISTRICT`) %>% 
-#   arrange(District) %>% 
-#   select(-`District Code`)
+enroll <- read_csv(here("edsight/raw_data", "enrollment_district.csv"), skip=5, col_types = cols(.default = "c")) %>% 
+  rename(District = DISTRICT) %>% 
+  select(District, '2013-14':'2017-18') %>% 
+  dplyr::filter(.$'District' %in% nh_dists$'district') %>% 
+  mutate_at(c('2013-14', '2014-15', '2015-16', '2016-17', '2017-18'), as.numeric) %>% 
+  mutate(enrollment = rowSums(.[2:6]))
 
-# df <- left_join(df1, df2) %>% 
 df <- df1 %>% 
   gather(`year`, value, '2013-14':'2017-18') %>% 
+  
+  # filter for GNH districts
   dplyr::filter(.$'District' %in% nh_dists$'district') %>% 
   rename('district' = "District") %>% 
   right_join(nh_dists, by = 'district') %>% 
+  
   drop_na() %>% # 152, 5 // 130, 5
   mutate_at('year', str_sub, start=1, end=4) %>% # first year of the school year
   mutate_at('year', as.numeric) %>% 
   mutate_at("district", str_replace, pattern = " School District", replacement = "") %>% 
   arrange(district, year) %>% 
-  rename(type = `Bullying Type`)
+  filter(`Bullying Type` == "Number of students with at least 1 bullying incident")
 
 df_high <- df %>% 
   mutate_at("value", str_replace, pattern = "\\*", replacement = "5") %>% 
   mutate_at("value", as.numeric) %>% 
-  group_by(district, type) %>% 
+  group_by(district) %>% 
   mutate(fouryr_val_high = sum(value)) %>% 
   ungroup() %>% 
   filter(year == 2017) %>% 
-  select(ring, district, type, fouryr_val_high)
+  select(ring, district, fouryr_val_high)
 
 df_low <- df %>% 
   mutate_at("value", str_replace, pattern = "\\*", replacement = "0") %>% 
   mutate_at("value", as.numeric) %>% 
-  group_by(district, type) %>% 
+  group_by(district) %>% 
   mutate(fouryr_val_low = sum(value)) %>% 
   ungroup() %>% 
   filter(year == 2017) %>% 
-  select(ring, district, type, fouryr_val_low)
+  select(ring, district, fouryr_val_low)
 
 df_high_low <- bind_cols(df_high, df_low) %>% 
   filter(type == "Number of students with at least 1 bullying incident") %>% 
@@ -200,7 +203,7 @@ df_high_low %>%
     theme_din(xgrid = T, ygrid = "dotted") +
     scale_color_manual(values = tol12[c(1, 2, 3, 4, 5, 7, 9, 10)]) +
     labs(title = "Bullying by District", 
-         y = "Total Incidents, 2013-2017",
+         y = "Number of students with at least 1 bullying incident, 2013-2017",
          x = "District",
          linetype='ring',
          caption = "Data from EdSight (CSDE)") +
@@ -232,7 +235,7 @@ bully_inc %>%
   theme_din(xgrid = T, ygrid = "dotted") +
   scale_color_manual(values = tol12[c(1, 2, 3, 4, 5, 7, 9, 10)]) +
   labs(title = "Bullying and Income Inequailty by Region", 
-        y = "Total reported bullying incidents, 2013-17 (Median across districts)",
+        y = "Number of students with at least 1 bullying incident, 2013-17 (Median across districts)",
         x = "Region",
        color = "Income\npercentile",
        caption = "Income data from 2017 Public Use Microdata Sample (PUMS) data\nBullying data from EdSight (CSDE)")

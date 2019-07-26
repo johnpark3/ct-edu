@@ -35,7 +35,7 @@ names <- c("1718", "1617",
 df1 <- map_dfr (names, function(name) { 
   readRDS(here("ctsde/outputs", str_glue("enrollment_race_{name}.rds")))
   }
-  )
+)
 
 df1 <- df1 %>% 
   as_tibble() %>% 

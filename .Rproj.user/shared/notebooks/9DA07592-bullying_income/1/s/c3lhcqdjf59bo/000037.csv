@@ -1,0 +1,11 @@
+"0","df_high <- df %>% 
+  mutate_at(""value"", str_replace, pattern = ""\\*"", replacement = ""5"") %>% 
+  mutate_at(""value"", as.numeric) %>% 
+  group_by(district, type) %>% 
+  mutate(fouryr_val_high = sum(value)) %>% 
+  ungroup() %>% 
+  filter(year == 2017) %>% 
+  select(ring, district, type, fouryr_val_high)
+"
+"2","Error: Column `type` is unknown
+"
