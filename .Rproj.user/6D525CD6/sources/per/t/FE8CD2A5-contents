@@ -37,8 +37,6 @@ df1 <- map_dfr (names, function(name) {
   }
   )
 
-## CREATE GREATER NEW HAVEN ROW
-
 df1 <- df1 %>% 
   as_tibble() %>% 
   
@@ -76,27 +74,6 @@ df1 <- df1 %>% bind_rows(gnh1)
 
 
 dim(df1)
-```
-
-```{r}
-df1 %>% ggplot(aes(x = year, y = student, group = district)) +
-  geom_line(aes(color = district)) +
-  geom_point() + 
-  theme(axis.text.x = element_text(angle = 20, hjust = 1))
-
-df1 %>% 
-  filter(region == "New Haven Inner Ring") %>% 
-  ggplot(aes(x = year, y = student, group = district)) +
-  geom_line(aes(color = district)) +
-  geom_point() + 
-  theme(axis.text.x = element_text(angle = 20, hjust = 1))
-
-df1 %>% 
-  filter(region == "New Haven Outer Ring") %>% 
-  ggplot(aes(x = year, y = student, group = district)) +
-  geom_line(aes(color = district)) +
-  geom_point() + 
-  theme(axis.text.x = element_text(angle = 20, hjust = 1))
 ```
 
 ## Staffing by race
@@ -145,6 +122,54 @@ df2 <- df2 %>% bind_rows(gnh2)
 dim(df2)
 ```
 
+## Join student and staff data
+```{r}
+df <- df1 %>%
+  bind_cols(df2) %>% 
+  select(region, district, year, student_white_count, staff_white_count, student_total_count, staff_total_count) %>% 
+  
+  # make long
+  gather(white_type, white_count, c(student_white_count, staff_white_count)) %>% 
+  mutate_at("white_type", str_replace, pattern = "_white_count", replacement = "") %>%
+  gather(total_type, total_count, c(student_total_count, staff_total_count)) %>% 
+  mutate_at("total_type", str_replace, pattern = "_total_count", replacement = "") %>% 
+  filter((white_type == "student" & total_type == "student") | (white_type == "staff" & total_type == "staff")) %>% 
+  
+  # white_type and total_type are redundant now
+  rename(type = white_type) %>% 
+  select(-total_type) %>% 
+
+  # clean
+  mutate_at("district", str_replace, pattern = " School District", replacement = "") %>% 
+  mutate_at("region", str_replace, pattern = "New Haven ", replacement = "") %>% 
+
+  # calculate percent minority
+  mutate(perc_minority = 100*(1-white_count/total_count))
+```
+
+
+## Charts
+```{r}
+df1 %>% ggplot(aes(x = year, y = student, group = district)) +
+  geom_line(aes(color = district)) +
+  geom_point() + 
+  theme(axis.text.x = element_text(angle = 20, hjust = 1))
+
+df1 %>% 
+  filter(region == "New Haven Inner Ring") %>% 
+  ggplot(aes(x = year, y = student, group = district)) +
+  geom_line(aes(color = district)) +
+  geom_point() + 
+  theme(axis.text.x = element_text(angle = 20, hjust = 1))
+
+df1 %>% 
+  filter(region == "New Haven Outer Ring") %>% 
+  ggplot(aes(x = year, y = student, group = district)) +
+  geom_line(aes(color = district)) +
+  geom_point() + 
+  theme(axis.text.x = element_text(angle = 20, hjust = 1))
+```
+
 ```{r}
 df2 %>% ggplot(aes(x = year, y = staff, group = district)) +
   geom_line(aes(color = district)) +
@@ -164,20 +189,6 @@ df2 %>%
   theme(axis.text.x = element_text(angle = 20, hjust = 1))
 ```
 
-```{r}
-df <- bind_cols(df1, df2) %>% 
-  select(region:student_total_count, staff:staff_total_count) %>% 
-  gather(type, perc_minority, c(student:staff_total_count), factor_key = TRUE)
-
-
-
-%>% 
-  mutate_at("district", str_replace, pattern = " School District", replacement = "") %>%
-  mutate_at(c('year', 'perc_minority'), as.numeric)
-```
-
-
-## Charts
 ```{r}
 df %>% 
   ggplot(aes(x=district, y=perc_minority, fill=type)) + 
