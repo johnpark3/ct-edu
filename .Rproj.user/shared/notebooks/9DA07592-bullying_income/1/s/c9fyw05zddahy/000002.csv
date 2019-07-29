@@ -1,0 +1,7 @@
+"0","shares <- shares0 %>% "
+"0","  filter(level == ""3_towns"") %>% "
+"0","  select(district = NAME, quintile=variable, share=estimate) %>% "
+"0","  mutate_at('quintile', substr, start = 10, stop =10) %>%"
+"0","  filter(district %in% nh_dists0$'district')"
+"2","Error in eval(lhs, parent, parent) : object 'shares0' not found
+"

@@ -1,0 +1,12 @@
+"0","pums <- read_ipums_micro(pums_ddi) %>%
+  setNames(names(.) %>% str_to_lower()) %>%
+  mutate_if(is.labelled, function(x) as_factor(lbl_clean(x))) %>%
+  mutate(hhincome = as.character(hhincome) %>% as.numeric()) %>%
+  left_join(puma_xwalk, by = c(""puma"" = ""id"")) %>%
+  mutate(puma = str_pad(puma, width = 5, side = ""left"", pad = ""0""))
+"
+"1","Use of data from IPUMS-USA is subject to conditions including that users should
+cite the data appropriately. Use command `ipums_conditions()` for more details.
+"
+"2","NAs introduced by coercion"
+"2","Column `puma`/`id` joining factors with different levels, coercing to character vector"

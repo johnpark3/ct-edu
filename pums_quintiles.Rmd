@@ -1,0 +1,87 @@
+---
+title: "R Notebook"
+output: github_document
+---
+
+# change bullying data to PUMA regions
+```{r}
+# add PUMA regions
+regions2 <- data.frame(
+ region = c("Hamden, Ansonia,\nSeymour, Derby,\nWoodbridge & Bethany", 
+             "East Haven, Branford,\nGuilford, Madison,\n& North Branford",
+             "West Haven,\nMilford & Orange",
+           "New Haven"
+             )
+ ) %>% lapply(as.character) %>% as_tibble()
+ 
+ df_low2 <- regions2 %>% 
+   fuzzyjoin::regex_right_join(df_low, by = c("region" = "district")) %>% 
+   group_by(region) %>% 
+   mutate(low = median(low)) %>% 
+   mutate(low_rate = median(low_rate)) %>% 
+   ungroup() %>% 
+   select(region, low, low_rate) %>% 
+  distinct() %>% 
+   drop_na()
+```
+
+## Setup
+```{r}
+puma_xwalk <- readRDS(here("_utils/region2puma.rds")) %>%
+  mutate(id = str_sub(id, -3, -1) %>% as.factor()) %>%
+  filter(region == "Greater New Haven") %>% 
+  select(-region) %>% 
+  rename(region = puma)
+pums_ddi <- read_ipums_ddi(here("_utils/usa_00048.xml"))
+pums <- read_ipums_micro(pums_ddi) %>%
+  setNames(names(.) %>% str_to_lower()) %>%
+  mutate_if(is.labelled, function(x) as_factor(lbl_clean(x))) %>%
+  left_join(puma_xwalk, by = c("puma" = "id"))%>%
+  mutate(hhincome = as.numeric(as.character(hhincome))) %>%
+  filter(!is.na(region))
+```
+```{r}
+base_des <- svydesign(id = ~puma, weights = ~hhwt, data = pums)
+income_des <- subset(base_des, relate == "Head/Householder" & !is.na(hhincome))
+svyquantile(~hhincome, income_des, 0.5)
+```
+
+## Income Quintiles
+```{r}
+quants1 <- svyby(~hhincome, ~region, income_des, svyquantile, quantiles = c(0.2, 0.5, 0.8, 0.95), keep.var = F) %>%
+  as.data.frame() %>%
+  as_tibble() %>%
+  setNames(c("region", "q20", "q50", "q80","q95")) %>%
+  mutate_if(is.numeric, round) %>%
+  mutate(ratio95_20 = round(q95 / q20, digits = 3)) %>% 
+  mutate(ratio80_20 = round(q80 / q20, digits = 3))
+```
+In `New Haven Town`, the highest-earning 5% makes 13.3x more money than the bottom 20%. The highest-earning 20% makes 6.3x more money than the bottom 20%. 
+In `West Haven, Milford & Orange Towns`, the highest-earning 5% makes 8x more money than the bottom 20%. The highest-earning 20% makes 4.7x more money than the bottom 20%. 
+IN `Hamden, Ansonia, Seymour, Derby, Woodbridge & Bethany Towns`, the highest-earning 5% makes 8.4x more money than the bottom 20%. The highest-earning 20% makes 4.8x more money than the bottom 20%. 
+In `East Haven, Branford, Guilford, Madison & North Branford Towns`, the highest-earning 5% makes 8.4x more money than the bottom 20%. The highest-earning 20% makes 4.3x more money than the bottom 20%. 
+
+```{r}
+quants2 <- svyby(~hhincome, ~region, income_des, svyquantile, quantiles = c(0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9), keep.var = F) %>%
+  as.data.frame() %>%
+  as_tibble() %>%
+  setNames(c("region", "q20", "q30", "q40", "q50", "q60", "q70", "q80","q90")) %>%
+  mutate_if(is.numeric, round) %>%
+  mutate(ratio90_20 = round(q90 / q20, digits = 3)) %>% 
+  mutate(ratio80_20 = round(q80 / q20, digits = 3)) %>%
+  mutate(ratio70_20 = round(q70 / q20, digits = 3)) %>% 
+  mutate(ratio60_20 = round(q60 / q20, digits = 3)) %>%
+  mutate(ratio50_20 = round(q50 / q20, digits = 3)) %>% 
+  mutate(ratio40_20 = round(q40 / q20, digits = 3)) %>%
+  mutate(ratio30_20 = round(q30 / q20, digits = 3)) %>% 
+  mutate(ratio20_20 = round(q20 / q20, digits = 3)) %>% 
+  mutate_at("region", str_replace, pattern = " Towns", replacement = "") %>% 
+  mutate_at("region", str_replace, pattern = " Town", replacement = "") %>% 
+  mutate_at("region", str_replace, pattern = "East Haven, Branford, Guilford, Madison & North Branford", replacement = "East Haven, Branford,\nGuilford, Madison,\n& North Branford") %>% 
+  mutate_at("region", str_replace, pattern = "Hamden, Ansonia, Seymour, Derby, Woodbridge & Bethany", replacement = "Hamden, Ansonia,\nSeymour, Derby,\nWoodbridge & Bethany") %>% 
+  mutate_at("region", str_replace, pattern = "West Haven, Milford & Orange", replacement = "West Haven,\nMilford & Orange") %>% 
+  gather(percentile, value, ratio90_20:ratio20_20) %>% 
+  select(-(q20:q90)) %>% 
+  mutate_at('percentile', substr, start=6, stop=7) %>% 
+  mutate_at('percentile', as.numeric)
+```

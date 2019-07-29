@@ -1,0 +1,24 @@
+"0","df2 %>%
+  select(District, School, year, Race, Count) %>% 
+  mutate_at(c(""District"", ""School""), na.locf) %>% 
+  sapply(gsub, pattern = ""="", rep = """") %>% 
+  as_tibble %>% 
+  sapply(gsub, pattern = '""', rep = """") %>% 
+  as_tibble %>% 
+  na_if(""."") %>% 
+  drop_na %>% 
+  mutate_at(c('Count'), as.numeric) %>% 
+  mutate_all(funs(ifelse(is.na(.), 0, .))) %>% 
+  
+  dplyr::filter(.$'District' %in% nh_dists$'district') %>% 
+  rename('district' = ""District"") %>% 
+  right_join(nh_dists, by = 'district') %>% 
+  
+  # convert year to numeric
+  mutate_at('year', str_sub, start=1, end=2) %>% 
+  mutate_at('year', paste0, ""20"", .) %>% 
+  mutate_at('year', as.numeric)
+"
+"2","Error in UseMethod(""tbl_vars"") : 
+  no applicable method for 'tbl_vars' applied to an object of class ""character""
+"

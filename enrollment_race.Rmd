@@ -15,7 +15,11 @@ knitr::opts_chunk$set(
 	fig.showtext = T
 )
 ```
-
+```{r}
+font_add_google("Roboto Condensed", "roboto")
+showtext_auto()
+tol12 <- PerformanceAnalytics::tol12qualitative
+```
 ```{r}
 source(here("_utils/edsight_functions.R"))
 nh_dists <- school_dists %>% 
@@ -48,19 +52,20 @@ df1 <- df1 %>%
   rename('district' = "District") %>% 
   right_join(nh_dists, by = 'district') %>% 
   
-  # create, student white count, student total count
+  # create, student white count, student total count, percent minority
   group_by(district, Year) %>% 
   mutate(student_total_count = sum(Value)) %>% 
   ungroup() %>% 
   dplyr::filter(`Race/Ethnicity` == "White") %>% 
   rename(student_white_count = Value) %>% 
+  mutate(student_perc_minority = 100*(1-student_white_count/student_total_count)) %>% 
   
   # convert year to numeric
-  rename(year = Year) %>% 
+  rename('year' = 'Year') %>% 
   mutate_at('year', str_sub, start=1, end=4) %>% 
   mutate_at('year', as.numeric) %>% 
   
-  select(region, district, year, student_white_count, student_total_count)
+  select(region, district, year, student_white_count, student_total_count, student_perc_minority)
 
 # Create and bind Greater New Haven row
 gnh1 <- df1 %>% 
@@ -68,12 +73,11 @@ gnh1 <- df1 %>%
   summarise_each(funs(sum), student_white_count, student_total_count) %>% 
   ungroup() %>% 
   mutate(region = "NA", district = "Greater New Haven") %>% 
-  select(region, district, year, student_white_count, student_total_count)
+  mutate(student_perc_minority = 100*(1-student_white_count/student_total_count)) %>% 
+  select(region, district, year, student_white_count, student_total_count, student_perc_minority)
 
-df1 <- df1 %>% bind_rows(gnh1)
-
-
-dim(df1)
+df1 <- df1 %>% bind_rows(gnh1) %>% 
+    mutate_at("district", str_remove, " School District") # remove 'School District'
 ```
 
 ## Staffing by race
@@ -99,6 +103,11 @@ df2 <- df2 %>%
   dplyr::filter(.$'District' %in% nh_dists$'district') %>% 
   rename('district' = "District") %>% 
   right_join(nh_dists, by = 'district') %>% 
+  
+  # convert year to numeric
+  mutate_at('year', str_sub, start=1, end=2) %>% 
+  mutate_at('year', paste0, "20", .) %>% 
+  mutate_at('year', as.numeric) %>% 
 
   # create, staff white count, staff total count, and percent white staff
   group_by(district, year) %>% 
@@ -106,7 +115,8 @@ df2 <- df2 %>%
   dplyr::filter(`Race` == "White") %>%
   mutate(staff_white_count = sum(Count)) %>% 
   ungroup() %>% 
-  select(region, district, year, staff_white_count, staff_total_count) %>% 
+  mutate(staff_perc_minority = 100*(1-staff_white_count/staff_total_count)) %>% 
+  select(region, district, year, staff_white_count, staff_total_count, staff_perc_minority) %>% 
   distinct()
 
 # Create and bind Greater New Haven row
@@ -115,11 +125,11 @@ gnh2 <- df2 %>%
   summarise_each(funs(sum), staff_white_count, staff_total_count) %>% 
   ungroup() %>% 
   mutate(region = "NA", district = "Greater New Haven") %>% 
-  select(region, district, year, staff_white_count, staff_total_count)
+  mutate(staff_perc_minority = 100*(1-staff_white_count/staff_total_count)) %>% 
+  select(region, district, year, staff_white_count, staff_total_count, staff_perc_minority)
 
-df2 <- df2 %>% bind_rows(gnh2)
-
-dim(df2)
+df2 <- df2 %>% bind_rows(gnh2) %>% 
+  mutate_at("district", str_remove, " School District") # remove 'School District'
 ```
 
 ## Join student and staff data
@@ -143,55 +153,87 @@ df <- df1 %>%
   mutate_at("district", str_replace, pattern = " School District", replacement = "") %>% 
   mutate_at("region", str_replace, pattern = "New Haven ", replacement = "") %>% 
 
-  # calculate percent minority
+  # calculate percent minority (again)
   mutate(perc_minority = 100*(1-white_count/total_count))
 ```
 
 
 ## Charts
 ```{r}
-df1 %>% ggplot(aes(x = year, y = student, group = district)) +
-  geom_line(aes(color = district)) +
-  geom_point() + 
-  theme(axis.text.x = element_text(angle = 20, hjust = 1))
+df1_inner <- df1 %>% 
+  filter(region == "New Haven Inner Ring")
+df1_inner %>% 
+  ggplot(aes(x = year, y = student_perc_minority, group = district, color = tol12[9])) + 
+    geom_line() +
+    geom_point(data = subset(df1_inner, year == 2010 | year == 2017)) +
+    scale_colour_discrete(guide = 'none') +
+    geom_dl(aes(label = district), method = list(dl.trans(x = x + 0.2), dl.combine("last.bumpup"), cex = 0.8)) +
+    theme_din(xgrid = T, ygrid = "dotted") +
+      labs(title = "Inner Ring Student Diversity has been increasing, 2010-2017", 
+           y = "Percent student minority",
+           x = "Year",
+           caption = "Data from EdSight (CSDE)") +
+    xlim(2010, 2018)
 
-df1 %>% 
-  filter(region == "New Haven Inner Ring") %>% 
-  ggplot(aes(x = year, y = student, group = district)) +
-  geom_line(aes(color = district)) +
-  geom_point() + 
-  theme(axis.text.x = element_text(angle = 20, hjust = 1))
-
-df1 %>% 
-  filter(region == "New Haven Outer Ring") %>% 
-  ggplot(aes(x = year, y = student, group = district)) +
-  geom_line(aes(color = district)) +
-  geom_point() + 
-  theme(axis.text.x = element_text(angle = 20, hjust = 1))
+df1_outer <- df1 %>% 
+  filter(region == "New Haven Outer Ring")
+df1_outer %>% 
+  ggplot(aes(x = year, y = student_perc_minority, group = district, color = tol12[1])) + 
+    geom_line() +
+    geom_point(data = subset(df1_outer, year == 2010 | year == 2017)) +
+    scale_colour_discrete(guide = 'none') +
+    geom_dl(aes(label = district), method = list(dl.trans(x = x + 0.2), dl.combine("last.bumpup"), cex = 0.8)) +
+    theme_din(xgrid = T, ygrid = "dotted") +
+      labs(title = "Outer Ring Student Diversity has been increasing, 2010-2017", 
+           y = "Percent student minority",
+           x = "Year",
+           caption = "Data from EdSight (CSDE)") +
+    xlim(2010, 2018)
 ```
 
 ```{r}
-df2 %>% ggplot(aes(x = year, y = staff, group = district)) +
+df2 %>% ggplot(aes(x = year, y = staff_perc_minority, group = district)) +
   geom_line(aes(color = district)) +
   theme(axis.text.x = element_text(angle = 20, hjust = 1))
+df2_inner <- df2 %>% 
+  filter(region == "New Haven Inner Ring")
+df2_inner %>% 
+  ggplot(aes(x = year, y = staff_perc_minority, group = district, color = tol12[3])) + 
+    geom_line() +
+    geom_point(data = subset(df2_inner, year == 2010 | year == 2017)) +
+    scale_colour_discrete(guide = 'none') +
+    geom_dl(aes(label = district), method = list(dl.trans(x = x + 0.2), dl.combine("last.bumpup"), cex = 0.8)) +
+    theme_din(xgrid = T, ygrid = "dotted") +
+      labs(title = "Inner Ring Staff Diversity has been stagnant, 2010-2017", 
+           y = "Percent student minority",
+           x = "Year",
+           caption = "Data from EdSight (CSDE)") +
+    xlim(2010, 2018)
 
-df2 %>% 
-  filter(region == "New Haven Inner Ring") %>% 
-  ggplot(aes(x = year, y = staff, group = district)) +
-  geom_line(aes(color = district)) +
-  geom_point() + 
-  theme(axis.text.x = element_text(angle = 20, hjust = 1))
-
-df2 %>% 
-  filter(region == "New Haven Outer Ring") %>% 
-  ggplot(aes(x = year, y = staff, group = district)) +
-  geom_line(aes(color = district)) +
-  theme(axis.text.x = element_text(angle = 20, hjust = 1))
+df1_outer <- df1 %>% 
+  filter(region == "New Haven Outer Ring")
+df1_outer %>% 
+  ggplot(aes(x = year, y = student_perc_minority, group = district, color = tol12[1])) + 
+    geom_line() +
+    geom_point(data = subset(df1_outer, year == 2010 | year == 2017)) +
+    scale_colour_discrete(guide = 'none') +
+    geom_dl(aes(label = district), method = list(dl.trans(x = x + 0.2), dl.combine("last.bumpup"), cex = 0.8)) +
+    theme_din(xgrid = T, ygrid = "dotted") +
+      labs(title = "Outer Ring Student Diversity has been increasing, 2010-2017", 
+           y = "Percent student minority",
+           x = "Year",
+           caption = "Data from EdSight (CSDE)") +
+    xlim(2010, 2018)
 ```
 
 ```{r}
 df %>% 
+  filter(year == 2017) %>% 
   ggplot(aes(x=district, y=perc_minority, fill=type)) + 
   geom_bar(stat="identity", position=position_dodge()) +
-  theme(axis.text.x = element_text(angle = 20, hjust = 1))
+  theme(axis.text.x = element_text(angle = 20, hjust = 1)) +
+  labs(title = "Percent Minority Staff and Students by District, 2017",
+       x = "District",
+       y = "Percent Minority",
+       caption =" Enrollment and staffing data from EdSight (CSDE)")
 ```
