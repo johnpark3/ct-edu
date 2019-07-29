@@ -171,7 +171,7 @@ df1_inner %>%
     scale_colour_discrete(guide = 'none') +
     geom_dl(aes(label = district), method = list(dl.trans(x = x + 0.2), dl.combine("last.bumpup"), cex = 0.8)) +
     theme_din(xgrid = T, ygrid = "dotted") +
-      labs(title = "Inner Ring Student Diversity has been increasing, 2010-2017", 
+      labs(title = "Inner Ring student diversity has been increasing, 2010-2017", 
            y = "Percent student minority",
            x = "Year",
            caption = "Data from EdSight (CSDE)") +
@@ -188,7 +188,7 @@ df1_outer %>%
     scale_colour_discrete(guide = 'none') +
     geom_dl(aes(label = district), method = list(dl.trans(x = x + 0.2), dl.combine("last.bumpup"), cex = 0.8)) +
     theme_din(xgrid = T, ygrid = "dotted") +
-      labs(title = "Outer Ring Student Diversity has been increasing, 2010-2017", 
+      labs(title = "Outer Ring student diversity has been increasing, 2010-2017", 
            y = "Percent student minority",
            x = "Year",
            caption = "Data from EdSight (CSDE)") +
@@ -205,13 +205,13 @@ df2 %>%
     scale_colour_discrete(guide = 'none') +
     geom_dl(aes(label = district), method = list(dl.trans(x = x + 0.2), dl.combine("last.bumpup"), cex = 0.8)) +
     theme_din(xgrid = T, ygrid = "dotted") +
-      labs(title = "Greater New Haven Staff Diversity has been stagnant, 2010-2017", 
-           y = "Percent student minority",
+      labs(title = "Greater New Haven staff diversity has been stagnant, 2010-2017", 
+           y = "Percent staff minority",
            x = "Year",
            caption = "Data from EdSight (CSDE)") +
     xlim(2010, 2018)
 
-ggsave(filename="staff_race_outer.png", path = here("graphs"))
+ggsave(filename="staff_race.png", path = here("graphs"))
 ```
 
 ```{r}
@@ -219,9 +219,12 @@ df %>%
   filter(year == 2017) %>% 
   ggplot(aes(x=district, y=perc_minority, fill=type)) + 
   geom_bar(stat="identity", position=position_dodge()) +
-  theme(axis.text.x = element_text(angle = 20, hjust = 1)) +
   labs(title = "Percent Minority Staff and Students by District, 2017",
        x = "District",
        y = "Percent Minority",
-       caption =" Enrollment and staffing data from EdSight (CSDE)")
+       caption =" Enrollment and staffing data from EdSight (CSDE)") +
+  theme_din(xgrid = T, ygrid = "dotted") +
+  theme(axis.text.x = element_text(angle = 20, hjust = .6))
+
+ggsave(filename="student_staff_2017.png", path = here("graphs"))
 ```
