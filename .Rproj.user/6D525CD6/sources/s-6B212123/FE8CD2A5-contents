@@ -106,7 +106,7 @@ df2 <- df2 %>%
   
   # convert year to numeric
   mutate_at('year', str_sub, start=1, end=2) %>% 
-  mutate_at('year', paste0, "20", .) %>% 
+  mutate("year" =paste0("20", year)) %>% 
   mutate_at('year', as.numeric) %>% 
 
   # create, staff white count, staff total count, and percent white staff
@@ -155,6 +155,8 @@ df <- df1 %>%
 
   # calculate percent minority (again)
   mutate(perc_minority = 100*(1-white_count/total_count))
+
+
 ```
 
 
@@ -196,38 +198,20 @@ ggsave(filename="student_race_outer.png", path = here("graphs"))
 ```
 
 ```{r}
-df2 %>% ggplot(aes(x = year, y = staff_perc_minority, group = district)) +
-  geom_line(aes(color = district)) +
-  theme(axis.text.x = element_text(angle = 20, hjust = 1))
-df2_inner <- df2 %>% 
-  filter(region == "New Haven Inner Ring")
-df2_inner %>% 
+df2 %>% 
   ggplot(aes(x = year, y = staff_perc_minority, group = district, color = tol12[3])) + 
     geom_line() +
-    geom_point(data = subset(df2_inner, year == 2010 | year == 2017)) +
+    geom_point(data = subset(df2, year == 2010 | year == 2017)) +
     scale_colour_discrete(guide = 'none') +
     geom_dl(aes(label = district), method = list(dl.trans(x = x + 0.2), dl.combine("last.bumpup"), cex = 0.8)) +
     theme_din(xgrid = T, ygrid = "dotted") +
-      labs(title = "Inner Ring Staff Diversity has been stagnant, 2010-2017", 
+      labs(title = "Greater New Haven Staff Diversity has been stagnant, 2010-2017", 
            y = "Percent student minority",
            x = "Year",
            caption = "Data from EdSight (CSDE)") +
     xlim(2010, 2018)
 
-df1_outer <- df1 %>% 
-  filter(region == "New Haven Outer Ring")
-df1_outer %>% 
-  ggplot(aes(x = year, y = student_perc_minority, group = district, color = tol12[1])) + 
-    geom_line() +
-    geom_point(data = subset(df1_outer, year == 2010 | year == 2017)) +
-    scale_colour_discrete(guide = 'none') +
-    geom_dl(aes(label = district), method = list(dl.trans(x = x + 0.2), dl.combine("last.bumpup"), cex = 0.8)) +
-    theme_din(xgrid = T, ygrid = "dotted") +
-      labs(title = "Outer Ring Student Diversity has been increasing, 2010-2017", 
-           y = "Percent student minority",
-           x = "Year",
-           caption = "Data from EdSight (CSDE)") +
-    xlim(2010, 2018)
+ggsave(filename="staff_race.png", path = here("graphs"))
 ```
 
 ```{r}
