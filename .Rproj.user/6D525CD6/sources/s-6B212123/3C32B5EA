@@ -1,0 +1,24 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1564425906215.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2107581145",
+    "id" : "3C32B5EA",
+    "lastKnownWriteTime" : 1564428865,
+    "last_content_update" : 1564428865718,
+    "path" : "~/Documents/GitHub/ct-edu/discipline.Rmd",
+    "project_path" : "discipline.Rmd",
+    "properties" : {
+        "cursorPosition" : "47,103",
+        "last_setup_crc32" : "6B2121231413af7e",
+        "scrollLine" : "40",
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}

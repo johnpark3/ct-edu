@@ -1,0 +1,97 @@
+---
+title: "discipline"
+author: "John Park"
+date: "7/29/2019"
+output: html_document
+---
+## Setup
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = TRUE,
+	message = FALSE,
+	warning = FALSE,
+	fig.showtext = T
+)
+```
+```{r}
+font_add_google("Roboto Condensed", "roboto")
+showtext_auto()
+tol12 <- PerformanceAnalytics::tol12qualitative
+```
+```{r}
+source(here("_utils/edsight_functions.R"))
+nh_dists <- school_dists %>% 
+  dplyr::filter(region %in% c("New Haven Inner Ring", "New Haven Outer Ring")) %>% 
+  rbind(c("New Haven Inner Ring", "New Haven"))
+```
+
+```{r}
+sus1 <- read_csv(here("edsight/raw_data", "SuspensionRates.csv"), skip=0) %>% 
+  select(district=District, race='Race/Ethnicity', count=Count, percent="%") %>% 
+  mutate_at('district', gsub, pattern = " School District", rep = "") %>% 
+  filter(district %in% nh_dists$district) %>% 
+  right_join(nh_dists, by = 'district') %>% 
+  mutate_at(c("count", "percent"), na_if, "N/A") %>% 
+  mutate_at(c("count", "percent"), na_if, "*") %>% 
+  mutate_at(c("count", "percent"), as.numeric) %>% 
+  filter(race %in% c("White", "Black or African American", "Hispanic/Latino of any race")) %>% 
+  mutate_at("race", gsub, pattern = " or African American", rep="") %>% 
+  mutate_at("race", gsub, pattern = " of any race", rep="") %>% 
+  select(ring = region, district, race, count, percent)
+```
+
+```{r}
+sus1_inner <- sus1 %>% filter(ring == "New Haven Inner Ring")
+sus1_inner %>% 
+  ggplot(aes(x = district, y = percent, group = race)) +
+  geom_bar(aes(fill=race), stat="identity", position=position_dodge()) +
+  labs(caption = "Suspension rate equals the number of students reported with at least one suspension\n(in-school or out-of-school) or expulsion in ED166 Student Disciplinary Offense Data Collection\ndivided by the unduplicated student enrollment count for the district",
+y = "Suspension rate",
+x = "District",
+title = "Suspension rates by race/ethnicity",
+subtitle = "New Haven Inner Ring School Districts, 2017-18") +
+  coord_flip() +
+  theme_din(xgrid = T, ygrid = "dotted") +
+  scale_fill_manual(values = tol12[c(1, 4, 3)]) +
+  guides(fill = guide_legend(reverse = TRUE))
+
+ggsave(filename="discipline_inner.png", path = here("graphs"))
+```
+```{r}
+sus1_outer <- sus1 %>% filter(ring == "New Haven Outer Ring") %>% 
+  filter(district %in% c("North Haven", "North Branford", "Milford", "Branford"))
+sus1_outer %>% 
+  ggplot(aes(x = district, y = percent, group = race)) +
+  geom_bar(aes(fill=race), stat="identity", position=position_dodge()) +
+  labs(caption = "Bethany, Guilford, Madison, Orange, and Woodbridge excluded due to lack of sufficient data",
+y = "Suspension rate",
+x = "District",
+title = "Suspension rates by race/ethnicity",
+subtitle = "New Haven Outer Ring School Districts, 2017-18") +
+  coord_flip() +
+  theme_din(xgrid = T, ygrid = "dotted") +
+  scale_fill_manual(values = tol12[c(1, 4, 3)]) +
+  guides(fill = guide_legend(reverse = TRUE))
+
+ggsave(filename="discipline_outer.png", path = here("graphs"))
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
