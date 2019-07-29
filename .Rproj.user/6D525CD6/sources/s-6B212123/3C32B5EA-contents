@@ -63,7 +63,7 @@ sus1_outer <- sus1 %>% filter(ring == "New Haven Outer Ring") %>%
 sus1_outer %>% 
   ggplot(aes(x = district, y = percent, group = race)) +
   geom_bar(aes(fill=race), stat="identity", position=position_dodge()) +
-  labs(caption = "Bethany, Guilford, Madison, Orange, and Woodbridge excluded due to lack of sufficient data",
+  labs(caption = "Bethany, Guilford, Madison, Orange, and Woodbridge excluded due to insufficient data",
 y = "Suspension rate",
 x = "District",
 title = "Suspension rates by race/ethnicity",
